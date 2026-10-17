@@ -72,6 +72,10 @@ use App\Controllers\InquilinoController;
 use App\Controllers\EstanciaController;
 use App\Controllers\CargoAlquilerController;
 use App\Controllers\CobroController;
+use App\Controllers\FacturaSuministroController;
+use App\Controllers\RepartoController;
+use App\Controllers\EntregaFacturaController;
+use App\Controllers\ComprobacionFacturaController;
 use App\Controllers\HabitacionController;
 use App\Controllers\InquilinoController;
 use App\Controllers\EstanciaController;
@@ -258,6 +262,89 @@ switch ($ruta) {
                 break;
             default:
                 $accion = 'listar';
+        }
+        break;
+    case 'facturas':
+        $controlador = new FacturaSuministroController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'nuevo':
+                $accion = 'nuevo';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            case 'editar':
+                $accion = 'editar';
+                break;
+            case 'actualizar':
+                $accion = 'actualizar';
+                break;
+            case 'anular':
+                $accion = 'anular';
+                break;
+            case 'ver':
+                $accion = 'ver';
+                break;
+            default:
+                $accion = 'listar';
+        }
+        break;
+    case 'repartos':
+        $controlador = new RepartoController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'nuevo';
+                break;
+            case 'nuevo':
+                $accion = 'nuevo';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            default:
+                $accion = 'nuevo';
+        }
+        break;
+    case 'entregas':
+        $controlador = new EntregaFacturaController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'nuevo';
+                break;
+            case 'nuevo':
+                $accion = 'nuevo';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            case 'todos':
+                $accion = 'todos';
+                break;
+            case 'crear-todos':
+                $accion = 'crearTodos';
+                break;
+            default:
+                $accion = 'nuevo';
+        }
+        break;
+    case 'comprobacion':
+        $controlador = new ComprobacionFacturaController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'ver';
+                break;
+            case 'ver':
+                $accion = 'ver';
+                break;
+            default:
+                $accion = 'ver';
         }
         break;
     case 'dashboard':

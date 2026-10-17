@@ -430,6 +430,107 @@ footer.pie {
 }
 
 /* ========================================================================
+   5. Tarjetas específicas de facturas, reparto, entregas y comprobación (Fase 4)
+   ======================================================================== */
+
+.tarjeta-facturas,
+.tarjeta-reparto,
+.tarjeta-entregas,
+.tarjeta-comprobacion {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.tarjeta-facturas h2,
+.tarjeta-reparto h2,
+.tarjeta-entregas h2,
+.tarjeta-comprobacion h2 {
+    margin-top: 0;
+    color: #1a3a5c;
+}
+
+/* Detalle de factura */
+.detalle-factura,
+.resumen-factura {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.campo-detalle {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.campo-detalle label {
+    display: block;
+    font-size: 0.875rem;
+    color: #666666;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.campo-detalle span {
+    font-size: 1rem;
+    color: #1a1a1a;
+}
+
+/* Resumen de reparto */
+.resumen-reparto {
+    background-color: #e8f5e9;
+    border: 1px solid #2e7d32;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.resumen-reparto h3 {
+    margin-top: 0;
+    color: #1b5e20;
+}
+
+/* Bloques de cuadre */
+.cuadre-bloque {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cuadre-bloque h3 {
+    margin-top: 0;
+    color: #1a3a5c;
+    border-bottom: 2px solid #1a3a5c;
+    padding-bottom: 0.5rem;
+}
+
+.cuadre-ok {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.cuadre-error {
+    color: #c62828;
+    font-weight: bold;
+}
+
+/* Tarjeta comprobacion */
+.tarjeta-comprobacion h3 {
+    color: #1a3a5c;
+    border-bottom: 1px solid #dddddd;
+    padding-bottom: 0.5rem;
+}
+
+/* ========================================================================
    6. Móviles y zoom al 200 %
    ======================================================================== */
 

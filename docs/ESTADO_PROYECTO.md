@@ -16,7 +16,7 @@ Se actualiza al finalizar cada fase.
 | Fase 5: Fianzas, llaves, gastos e incidencias | ✅ Completada | 17/10/2026 | Pendiente commit |
 | Fase 6: Dashboard, listados, exportaciones, informes, liquidaciones | ✅ Completada | 17/10/2026 | `3fae93a` |
 | Fase 7: Ayudas, accesibilidad, pruebas integrales, copias, documentación final | ✅ Completada | 17/10/2026 | `1c3870c` |
-| Fase 8: Contratos de alquiler con renovación y alertas de vencimiento | ✅ Completada | 17/10/2026 | Pendiente commit |
+| Fase 8: Contratos de alquiler con renovación y alertas de vencimiento | ✅ Completada | 17/10/2026 | `921c6ad` |
 
 ---
 

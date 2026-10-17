@@ -1,0 +1,27 @@
+# Tutoriales de fase (excluidos del entregable y de Git)
+/tutorial_*.md
+
+# Configuración local con secretos (no subir)
+config/*.local.php
+config/db.local.php
+
+# Almacenamiento local del propietario
+storage/attachments/*
+storage/logs/*
+storage/backups/*
+!storage/.gitkeep
+
+# Dependencias y entorno
+vendor/
+node_modules/
+
+# IDE y sistema operativo
+.idea/
+.vscode/
+*.log
+Thumbs.db
+.DS_Store
+
+# Copias de seguridad
+*.sql.bak
+*.zip

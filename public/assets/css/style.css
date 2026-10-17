@@ -1,0 +1,335 @@
+/**
+ * Hoja de estilos principal de la aplicación Alquiler.
+ *
+ * Diseñada para accesibilidad: letra base 18 px, alto contraste,
+ * botones amplios (≥56 px), foco de teclado visible, estados con texto
+ * y color, y adaptación a móviles y zoom al 200 %.
+ *
+ * No se utilizan frameworks CSS. Todo es CSS propio.
+ */
+
+/* ========================================================================
+   1. Reset y base
+   ======================================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 18px; /* Letra base grande para accesibilidad */
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #1a1a1a;
+    background-color: #f7f7f7;
+    line-height: 1.6;
+}
+
+main.contenido {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* ========================================================================
+   2. Cabecera y pie
+   ======================================================================== */
+
+header.cabecera {
+    background-color: #1a3a5c;
+    color: #ffffff;
+    padding: 1rem 0;
+    border-bottom: 4px solid #0d2a4a;
+}
+
+.contenedor-cabecera {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.nombre-app {
+    font-size: 1.75rem;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.usuario-sesion {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.125rem;
+}
+
+.btn-salir {
+    background-color: #c0392b;
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-salir:hover {
+    background-color: #a93226;
+}
+
+footer.pie {
+    background-color: #e8e8e8;
+    color: #555555;
+    padding: 1rem 0;
+    border-top: 1px solid #cccccc;
+    margin-top: 2rem;
+}
+
+.contenedor-pie {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+/* ========================================================================
+   3. Alertas y mensajes
+   ======================================================================== */
+
+.alerta {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 6px;
+    border-left: 6px solid;
+}
+
+.alerta-exito {
+    background-color: #e8f5e9;
+    border-left-color: #2e7d32;
+    color: #1b5e20;
+}
+
+.alerta-error {
+    background-color: #ffebee;
+    border-left-color: #c62828;
+    color: #b71c1c;
+}
+
+.alerta-info {
+    background-color: #e3f2fd;
+    border-left-color: #1565c0;
+    color: #0d47a1;
+}
+
+.alerta-advertencia {
+    background-color: #fff3e0;
+    border-left-color: #ef6c00;
+    color: #e65100;
+}
+
+.alerta[role="alert"] {
+    font-size: 1rem;
+}
+
+/* ========================================================================
+   4. Tarjetas y formularios
+   ======================================================================== */
+
+.tarjeta-login,
+.tarjeta-password,
+.tarjeta-instalacion {
+    max-width: 500px;
+    margin: 2rem auto;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.tarjeta-login h2,
+.tarjeta-password h2,
+.tarjeta-instalacion h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: #1a3a5c;
+}
+
+.descripcion {
+    font-size: 1rem;
+    color: #555555;
+    margin-bottom: 1.5rem;
+}
+
+.campo {
+    margin-bottom: 1.25rem;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #1a1a1a;
+}
+
+.campo input[type="text"],
+.campo input[type="password"],
+.campo input[type="email"],
+.campo input[type="date"],
+.campo input[type="number"],
+.campo select,
+.campo textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid #cccccc;
+    border-radius: 6px;
+    background-color: #ffffff;
+    transition: border-color 0.2s;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+    outline: none;
+    border-color: #1a3a5c;
+    box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.2);
+}
+
+.ayuda-campo {
+    font-size: 0.875rem;
+    color: #666666;
+    margin-top: 0.25rem;
+}
+
+.ayuda {
+    font-size: 0.875rem;
+    color: #666666;
+    margin-top: 1rem;
+}
+
+.btn-guardar,
+.btn-volver {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    border: none;
+    margin-right: 0.5rem;
+    min-width: 140px;
+    text-align: center;
+}
+
+.btn-guardar {
+    background-color: #1a3a5c;
+    color: #ffffff;
+}
+
+.btn-guardar:hover {
+    background-color: #0d2a4a;
+}
+
+.btn-guardar:focus-visible {
+    outline: 3px solid #1a3a5c;
+    outline-offset: 2px;
+}
+
+.btn-volver {
+    background-color: #666666;
+    color: #ffffff;
+}
+
+.btn-volver:hover {
+    background-color: #555555;
+}
+
+.btn-volver:focus-visible {
+    outline: 3px solid #666666;
+    outline-offset: 2px;
+}
+
+/* Botón de cierre de sesión específico */
+.btn-salir:focus-visible {
+    outline: 3px solid #c0392b;
+    outline-offset: 2px;
+}
+
+/* ========================================================================
+   5. Dashboard temporal
+   ======================================================================== */
+
+.tarjeta-dashboard {
+    max-width: 800px;
+    margin: 2rem auto;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.tarjeta-dashboard h2 {
+    margin-top: 0;
+    color: #1a3a5c;
+}
+
+/* ========================================================================
+   6. Móviles y zoom al 200 %
+   ======================================================================== */
+
+@media (max-width: 640px) {
+    html {
+        font-size: 16px;
+    }
+
+    .contenedor-cabecera {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .usuario-sesion {
+        justify-content: center;
+    }
+
+    .tarjeta-login,
+    .tarjeta-password,
+    .tarjeta-instalacion {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+
+    .campo input,
+    .campo select,
+    .campo textarea {
+        font-size: 1rem; /* Evitar zoom forzado en iOS */
+    }
+
+    main.contenido {
+        padding: 0.5rem;
+    }
+}
+
+/* Foco de teclado visible en todos los elementos interactivos */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid #1a3a5c;
+    outline-offset: 2px;
+}

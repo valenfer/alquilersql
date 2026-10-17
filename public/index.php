@@ -53,7 +53,7 @@ date_default_timezone_set($config['zona_horaria'] ?? 'Europe/Madrid');
 spl_autoload_register(function ($clase) {
     $prefijo = 'App\\';
     if (strpos($clase, $prefijo) === 0) {
-        $rutaClase = APP_ROOT . str_replace('\\', DIRECTORY_SEPARATOR, substr($clase, strlen($prefijo))) . '.php';
+        $rutaClase = APP_ROOT . 'app/' . str_replace('\\', DIRECTORY_SEPARATOR, substr($clase, strlen($prefijo))) . '.php';
         if (file_exists($rutaClase)) {
             require $rutaClase;
         }

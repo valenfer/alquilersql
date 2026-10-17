@@ -13,7 +13,7 @@ Se actualiza al finalizar cada fase.
 | Fase 2: Habitaciones, inquilinos y estancias con prevención de solapamientos | ✅ Completada | 17/10/2026 | `d704133` |
 | Fase 3: Mensualidades, cobros y aplicaciones con integridad monetaria | ✅ Completada | 17/10/2026 | `bca8f7a` |
 | Fase 4: Facturas de suministros, pagos al proveedor, reparto manual, entregas, comprobación | ✅ Completada | 17/10/2026 | `a9654aa` |
-| Fase 5: Fianzas, llaves, gastos e incidencias | ⏳ Pendiente | — | — |
+| Fase 5: Fianzas, llaves, gastos e incidencias | ✅ Completada | 17/10/2026 | Pendiente commit |
 | Fase 6: Dashboard, listados, exportaciones, informes, liquidaciones | ⏳ Pendiente | — | — |
 | Fase 7: Ayudas, accesibilidad, pruebas integrales, copias, documentación final | ⏳ Pendiente | — | — |
 

@@ -76,6 +76,10 @@ use App\Controllers\FacturaSuministroController;
 use App\Controllers\RepartoController;
 use App\Controllers\EntregaFacturaController;
 use App\Controllers\ComprobacionFacturaController;
+use App\Controllers\FianzaController;
+use App\Controllers\LlaveController;
+use App\Controllers\GastoController;
+use App\Controllers\IncidenciaController;
 use App\Controllers\HabitacionController;
 use App\Controllers\InquilinoController;
 use App\Controllers\EstanciaController;
@@ -345,6 +349,137 @@ switch ($ruta) {
                 break;
             default:
                 $accion = 'ver';
+        }
+        break;
+    case 'fianzas':
+        $controlador = new FianzaController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'listar':
+                $accion = 'listar';
+                break;
+            case 'recibir':
+                $accion = 'recibir';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            case 'devolver':
+                $accion = 'devolver';
+                break;
+            case 'procesar-devolver':
+                $accion = 'procesarDevolver';
+                break;
+            case 'aplicar':
+                $accion = 'aplicar';
+                break;
+            case 'procesar-aplicar':
+                $accion = 'procesarAplicar';
+                break;
+            case 'ver':
+                $accion = 'ver';
+                break;
+            default:
+                $accion = 'listar';
+        }
+        break;
+    case 'llaves':
+        $controlador = new LlaveController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'listar':
+                $accion = 'listar';
+                break;
+            case 'estancia':
+                $accion = 'estancia';
+                break;
+            case 'entregar':
+                $accion = 'entregar';
+                break;
+            case 'procesar-entregar':
+                $accion = 'procesarEntregar';
+                break;
+            case 'devolver':
+                $accion = 'devolver';
+                break;
+            case 'procesar-devolver':
+                $accion = 'procesarDevolver';
+                break;
+            case 'perder':
+                $accion = 'perder';
+                break;
+            case 'procesar-perder':
+                $accion = 'procesarPerder';
+                break;
+            case 'reponer':
+                $accion = 'reponer';
+                break;
+            case 'procesar-reponer':
+                $accion = 'procesarReponer';
+                break;
+            default:
+                $accion = 'listar';
+        }
+        break;
+    case 'gastos':
+        $controlador = new GastoController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'listar':
+                $accion = 'listar';
+                break;
+            case 'nuevo':
+                $accion = 'nuevo';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            case 'ver':
+                $accion = 'ver';
+                break;
+            case 'pagar':
+                $accion = 'pagar';
+                break;
+            case 'procesar-pagar':
+                $accion = 'procesarPagar';
+                break;
+            default:
+                $accion = 'listar';
+        }
+        break;
+    case 'incidencias':
+        $controlador = new IncidenciaController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'listar':
+                $accion = 'listar';
+                break;
+            case 'nuevo':
+                $accion = 'nuevo';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            case 'estado':
+                $accion = 'estado';
+                break;
+            case 'procesar-estado':
+                $accion = 'procesarEstado';
+                break;
+            default:
+                $accion = 'listar';
         }
         break;
     case 'dashboard':

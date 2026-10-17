@@ -531,6 +531,64 @@ footer.pie {
 }
 
 /* ========================================================================
+   5. Tarjetas específicas de fianzas, llaves, gastos e incidencias (Fase 5)
+   ======================================================================== */
+
+.tarjeta-fianzas,
+.tarjeta-llaves,
+.tarjeta-gastos,
+.tarjeta-incidencias {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.tarjeta-fianzas h2,
+.tarjeta-llaves h2,
+.tarjeta-gastos h2,
+.tarjeta-incidencias h2 {
+    margin-top: 0;
+    color: #1a3a5c;
+}
+
+/* Detalle de fianza */
+.detalle-fianza {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Resumen de estancia */
+.resumen-estancia,
+.resumen-fianza,
+.resumen-gasto,
+.resumen-incidencia {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.resumen-estancia h3,
+.resumen-fianza h3,
+.resumen-gasto h3,
+.resumen-incidencia h3 {
+    margin-top: 0;
+    color: #1a3a5c;
+}
+
+/* Pago fila */
+.pago-fila {
+    margin-bottom: 1rem;
+}
+
+/* ========================================================================
    6. Móviles y zoom al 200 %
    ======================================================================== */
 

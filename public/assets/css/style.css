@@ -289,6 +289,147 @@ footer.pie {
 }
 
 /* ========================================================================
+   5. Tarjetas específicas de cargos y cobros (Fase 3)
+   ======================================================================== */
+
+.tarjeta-cargos,
+.tarjeta-cobros,
+.tarjeta-formulario {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.tarjeta-cargos h2,
+.tarjeta-cobros h2,
+.tarjeta-formulario h2 {
+    margin-top: 0;
+    color: #1a3a5c;
+}
+
+/* Detalle de cargo y cobro */
+.detalle-cargo,
+.detalle-cobro {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.campo-detalle {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.campo-detalle label {
+    display: block;
+    font-size: 0.875rem;
+    color: #666666;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.campo-detalle span {
+    font-size: 1rem;
+    color: #1a1a1a;
+}
+
+.resumen-total {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #e8f5e9;
+    border-radius: 6px;
+    border-left: 4px solid #2e7d32;
+}
+
+/* Pasos del formulario de cobro */
+.paso {
+    margin-bottom: 2rem;
+}
+
+.paso h3 {
+    color: #1a3a5c;
+    margin-top: 0;
+    border-bottom: 2px solid #1a3a5c;
+    padding-bottom: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.btn-small {
+    background-color: #1a3a5c;
+    color: #ffffff;
+}
+
+.btn-small:hover {
+    background-color: #0d2a4a;
+}
+
+.btn-small.btn-eliminar {
+    background-color: #c0392b;
+}
+
+.btn-small.btn-eliminar:hover {
+    background-color: #a93226;
+}
+
+/* Filtros */
+.filtros-busqueda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-end;
+}
+
+.campo-filtro {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.campo-filtro label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.campo-filtro select,
+.campo-filtro input[type="date"] {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 2px solid #cccccc;
+    border-radius: 6px;
+}
+
+/* Estado vencido */
+.estado-vencido {
+    background-color: #c62828;
+    color: #ffffff;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+    display: inline-block;
+}
+
+/* ========================================================================
    6. Móviles y zoom al 200 %
    ======================================================================== */
 

@@ -70,6 +70,11 @@ use App\Controllers\InstallController;
 use App\Controllers\HabitacionController;
 use App\Controllers\InquilinoController;
 use App\Controllers\EstanciaController;
+use App\Controllers\CargoAlquilerController;
+use App\Controllers\CobroController;
+use App\Controllers\HabitacionController;
+use App\Controllers\InquilinoController;
+use App\Controllers\EstanciaController;
 
 // Configurar base de datos
 Database::configurar($dbConfig);
@@ -200,6 +205,56 @@ switch ($ruta) {
                 break;
             case 'finalizar':
                 $accion = 'finalizar';
+                break;
+            default:
+                $accion = 'listar';
+        }
+        break;
+    case 'cargos':
+        $controlador = new CargoAlquilerController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'preparar':
+                if (isset($_GET['preview']) || $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $accion = 'preview';
+                } else {
+                    $accion = 'preparar';
+                }
+                break;
+            case 'preview':
+                $accion = 'preview';
+                break;
+            case 'guardar':
+                $accion = 'guardar';
+                break;
+            case 'ver':
+                $accion = 'ver';
+                break;
+            default:
+                $accion = 'listar';
+        }
+        break;
+    case 'cobros':
+        $controlador = new CobroController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'nuevo':
+                $accion = 'nuevo';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            case 'ver':
+                $accion = 'ver';
+                break;
+            case 'cargos-pendientes':
+                $accion = 'cargosPendientes';
                 break;
             default:
                 $accion = 'listar';

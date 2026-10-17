@@ -67,6 +67,9 @@ use App\Support\Session;
 use App\Support\Security;
 use App\Controllers\AuthController;
 use App\Controllers\InstallController;
+use App\Controllers\HabitacionController;
+use App\Controllers\InquilinoController;
+use App\Controllers\EstanciaController;
 
 // Configurar base de datos
 Database::configurar($dbConfig);
@@ -74,8 +77,12 @@ Database::configurar($dbConfig);
 // Iniciar sesión
 Session::iniciar($config);
 
-// Determinar ruta
-$ruta = $_GET['r'] ?? 'login';
+// Determinar ruta (primer segmento antes de '/' o '?')
+$rutaCompleta = $_GET['r'] ?? 'login';
+// Separar ruta base de parámetros adicionales (ej. "habitaciones/editar" o "habitaciones")
+$partesRuta = explode('/', $rutaCompleta);
+$ruta = $partesRuta[0];
+$subRuta = $partesRuta[1] ?? null;
 $metodo = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 // Si no hay usuarios, redirigir a instalación (excepto rutas de instalación y assets)
@@ -119,6 +126,84 @@ switch ($ruta) {
     case 'doInstall':
         $controlador = new InstallController();
         $accion = 'instalar';
+        break;
+    case 'habitaciones':
+        $controlador = new HabitacionController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'nuevo':
+                $accion = 'nuevo';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            case 'editar':
+                $accion = 'editar';
+                break;
+            case 'actualizar':
+                $accion = 'actualizar';
+                break;
+            case 'eliminar':
+                $accion = 'eliminar';
+                break;
+            default:
+                $accion = 'listar';
+        }
+        break;
+    case 'inquilinos':
+        $controlador = new InquilinoController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'nuevo':
+                $accion = 'nuevo';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            case 'editar':
+                $accion = 'editar';
+                break;
+            case 'actualizar':
+                $accion = 'actualizar';
+                break;
+            case 'archivar':
+                $accion = 'archivar';
+                break;
+            default:
+                $accion = 'listar';
+        }
+        break;
+    case 'estancias':
+        $controlador = new EstanciaController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'nuevo':
+                $accion = 'nuevo';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            case 'editar':
+                $accion = 'editar';
+                break;
+            case 'actualizar':
+                $accion = 'actualizar';
+                break;
+            case 'finalizar':
+                $accion = 'finalizar';
+                break;
+            default:
+                $accion = 'listar';
+        }
         break;
     case 'dashboard':
     default:

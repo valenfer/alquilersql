@@ -80,6 +80,10 @@ use App\Controllers\FianzaController;
 use App\Controllers\LlaveController;
 use App\Controllers\GastoController;
 use App\Controllers\IncidenciaController;
+use App\Controllers\DashboardController;
+use App\Controllers\ExportController;
+use App\Controllers\InformeAnualController;
+use App\Controllers\LiquidacionSalidaController;
 use App\Controllers\HabitacionController;
 use App\Controllers\InquilinoController;
 use App\Controllers\EstanciaController;
@@ -483,14 +487,49 @@ switch ($ruta) {
         }
         break;
     case 'dashboard':
-    default:
-        // Dashboard temporal (fase futura)
-        if (!Auth::estaAutenticado()) {
-            header('Location: ' . $config['url_base'] . '/index.php?r=login');
-            exit;
+        $controlador = new DashboardController();
+        $accion = 'index';
+        break;
+    case 'exportar':
+        $controlador = new ExportController();
+        $tipo = $subRuta ?? '';
+        $controlador->exportar($tipo, $config);
+        exit;
+    case 'informes':
+        $controlador = new InformeAnualController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'seleccionarAnio';
+                break;
+            case 'anual':
+                if (isset($_GET['generar']) || !empty($_GET['anio'])) {
+                    $accion = 'generar';
+                } else {
+                    $accion = 'seleccionarAnio';
+                }
+                break;
+            default:
+                $accion = 'seleccionarAnio';
         }
-        $contenido = '<div class="tarjeta-dashboard"><h2>Dashboard</h2><p>El dashboard se implementará en la fase 6.</p><a href="?r=logout" class="btn-salir">Cerrar sesión</a></div>';
-        require APP_ROOT . 'app/Views/layout.php';
+        break;
+    case 'liquidacion':
+        $controlador = new LiquidacionSalidaController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'estancia';
+                break;
+            case 'estancia':
+                $accion = 'estancia';
+                break;
+            default:
+                $accion = 'estancia';
+        }
+        break;
+    default:
+        // Redirigir al dashboard
+        header('Location: ' . $config['url_base'] . '/index.php?r=dashboard');
         exit;
 }
 

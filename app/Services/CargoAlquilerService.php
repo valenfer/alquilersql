@@ -230,7 +230,7 @@ class CargoAlquilerService
         // Obtener estancias que podrían ocupar algo en este mes
         $pdo = Database::obtenerConexion();
         $stmt = $pdo->prepare(
-            'SELECT e.id AS estancia_id, e.inquilino_id, e.fecha_entrada, e.fecha_salida_efectiva,
+            "SELECT e.id AS estancia_id, e.inquilino_id, e.fecha_entrada, e.fecha_salida_efectiva,
                     e.renta_mensual, e.dia_vencimiento, h.numero AS habitacion_numero,
                     i.nombre AS inquilino_nombre, i.apellidos AS inquilino_apellidos
              FROM estancias e
@@ -241,7 +241,7 @@ class CargoAlquilerService
                    e.fecha_entrada <= :fin_mes
                    AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva >= :inicio_mes)
                )
-             ORDER BY h.numero ASC'
+             ORDER BY h.numero ASC"
         );
         $inicioMes = sprintf('%04d-%02d-01', $anio, $mes);
         $finMes = date('Y-m-t', mktime(0, 0, 0, $mes, 1, $anio));

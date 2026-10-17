@@ -69,6 +69,7 @@ class DashboardController
             'habitaciones' => $datos['habitaciones'],
             'indicadores' => $datos['indicadores'],
             'grafico' => $datos['grafico'],
+            'alertas_contratos' => $datos['alertas_contratos'],
             'csrf' => $csrf,
             'flash' => $flash,
             'config' => $config,

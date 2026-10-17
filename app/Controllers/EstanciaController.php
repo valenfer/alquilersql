@@ -66,7 +66,7 @@ class EstanciaController
         $pdo = \App\Support\Database::obtenerConexion();
         $stmtHab = $pdo->query('SELECT id, nombre FROM habitaciones ORDER BY numero');
         $habitaciones = $stmtHab->fetchAll();
-        $stmtInq = $pdo->query('SELECT id, nombre, apellidos FROM inquilinos WHERE estado = 'activa' ORDER BY apellidos, nombre');
+        $stmtInq = $pdo->query("SELECT id, nombre, apellidos FROM inquilinos WHERE estado = 'activa' ORDER BY apellidos, nombre");
         $inquilinos = $stmtInq->fetchAll();
 
         $this->render('estancias/listar.php', [
@@ -302,7 +302,7 @@ class EstanciaController
     {
         $pdo = \App\Support\Database::obtenerConexion();
         $stmt = $pdo->query(
-            'SELECT id, nombre, apellidos, numero_documento FROM inquilinos WHERE estado = 'activa' ORDER BY apellidos, nombre'
+            "SELECT id, nombre, apellidos, numero_documento FROM inquilinos WHERE estado = 'activa' ORDER BY apellidos, nombre"
         );
         return $stmt->fetchAll();
     }

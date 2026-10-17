@@ -99,13 +99,13 @@ class MovimientoLlaveRepository
      */
     public function verificarDevolucion(int $estanciaId, ?int $tipoLlaveId, int $cantidadADevolver): array
     {
-        $sql = '
+        $sql = "
             SELECT COALESCE(SUM(CASE WHEN m.tipo = 'entrega' THEN m.cantidad
                                      WHEN m.tipo = 'reposicion' THEN m.cantidad
                                      ELSE -m.cantidad END), 0) AS pendiente
              FROM movimientos_llave m
              LEFT JOIN llaves l ON m.llave_id = l.id
-             WHERE m.estancia_id = :estancia_id';
+             WHERE m.estancia_id = :estancia_id";
         $params = [':estancia_id' => $estanciaId];
 
         if ($tipoLlaveId !== null) {

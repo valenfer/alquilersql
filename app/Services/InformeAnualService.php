@@ -98,24 +98,24 @@ class InformeAnualService
 
         // Pagos de comunidad e IBI
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(pg.importe), 0) AS total
+            "SELECT COALESCE(SUM(pg.importe), 0) AS total
              FROM pagos_gasto pg
              INNER JOIN gastos g ON pg.gasto_id = g.id
              INNER JOIN categorias_gasto cg ON g.categoria_id = cg.id
              WHERE pg.fecha_pago BETWEEN :inicio AND :fin
-               AND cg.nombre IN ('Comunidad', 'IBI')'
+               AND cg.nombre IN ('Comunidad', 'IBI')"
         );
         $stmt->execute([':inicio' => $inicio, ':fin' => $fin]);
         $pagosComunidadIBI = (float) $stmt->fetch()['total'];
 
         // Pagos de reparaciones, averías y demás gastos
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(pg.importe), 0) AS total
+            "SELECT COALESCE(SUM(pg.importe), 0) AS total
              FROM pagos_gasto pg
              INNER JOIN gastos g ON pg.gasto_id = g.id
              INNER JOIN categorias_gasto cg ON g.categoria_id = cg.id
              WHERE pg.fecha_pago BETWEEN :inicio AND :fin
-               AND cg.nombre NOT IN ('Comunidad', 'IBI')'
+               AND cg.nombre NOT IN ('Comunidad', 'IBI')"
         );
         $stmt->execute([':inicio' => $inicio, ':fin' => $fin]);
         $pagosOtrosGastos = (float) $stmt->fetch()['total'];
@@ -167,25 +167,25 @@ class InformeAnualService
 
         // Deuda de alquiler a fecha de cierre (cargos del año con saldo pendiente)
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(ROUND(c.importe_esperado - c.importe_cobrado, 2)), 0) AS total
+            "SELECT COALESCE(SUM(ROUND(c.importe_esperado - c.importe_cobrado, 2)), 0) AS total
              FROM cargos_alquiler c
              WHERE c.anio = :anio
                AND c.estado IN ('pendiente', 'parcial')
-               AND c.fecha_vencimiento <= :fin_cierre'
+               AND c.fecha_vencimiento <= :fin_cierre"
         );
         $stmt->execute([':anio' => $anio, ':fin_cierre' => $finCierre]);
         $deudaAlquilerCierre = (float) $stmt->fetch()['total'];
 
         // Cuotas de suministros por factura y periodo (del año)
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(c.importe), 0) AS total_cuotas,
+            "SELECT COALESCE(SUM(c.importe), 0) AS total_cuotas,
                     COALESCE(SUM(a.importe), 0) AS total_cobrado
              FROM facturas_suministro f
              INNER JOIN repartos_factura r ON f.id = r.factura_id AND r.estado = 'confirmado'
              INNER JOIN cuotas_reparto c ON c.reparto_id = r.id
              LEFT JOIN aplicaciones_cobro a ON a.cuota_reparto_id = c.id
              WHERE f.periodo_desde BETWEEN :inicio AND :fin
-               AND f.estado = 'confirmada''
+               AND f.estado = 'confirmada'"
         );
         $stmt->execute([':inicio' => sprintf('%04d-01-01', $anio), ':fin' => $finCierre]);
         $suministros = $stmt->fetch();
@@ -225,40 +225,40 @@ class InformeAnualService
     {
         // Fianzas recibidas en dinero durante el año
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(m.importe), 0) AS total
+            "SELECT COALESCE(SUM(m.importe), 0) AS total
              FROM movimientos_fianza m
              WHERE m.tipo = 'recepcion'
-               AND m.fecha BETWEEN :inicio AND :fin'
+               AND m.fecha BETWEEN :inicio AND :fin"
         );
         $stmt->execute([':inicio' => $inicio, ':fin' => $fin]);
         $fianzasRecibidas = (float) $stmt->fetch()['total'];
 
         // Fianzas devueltas en dinero durante el año
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(m.importe), 0) AS total
+            "SELECT COALESCE(SUM(m.importe), 0) AS total
              FROM movimientos_fianza m
              WHERE m.tipo = 'devolucion'
-               AND m.fecha BETWEEN :inicio AND :fin'
+               AND m.fecha BETWEEN :inicio AND :fin"
         );
         $stmt->execute([':inicio' => $inicio, ':fin' => $fin]);
         $fianzasDevueltas = (float) $stmt->fetch()['total'];
 
         // Aplicaciones a deudas existentes (sin caja)
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(m.importe), 0) AS total
+            "SELECT COALESCE(SUM(m.importe), 0) AS total
              FROM movimientos_fianza m
              WHERE m.tipo = 'aplicacion_deuda'
-               AND m.fecha BETWEEN :inicio AND :fin'
+               AND m.fecha BETWEEN :inicio AND :fin"
         );
         $stmt->execute([':inicio' => $inicio, ':fin' => $fin]);
         $fianzasAplicadas = (float) $stmt->fetch()['total'];
 
         // Compensaciones por daños u otros conceptos (sin caja)
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(m.importe), 0) AS total
+            "SELECT COALESCE(SUM(m.importe), 0) AS total
              FROM movimientos_fianza m
              WHERE m.tipo = 'compensacion_danos'
-               AND m.fecha BETWEEN :inicio AND :fin'
+               AND m.fecha BETWEEN :inicio AND :fin"
         );
         $stmt->execute([':inicio' => $inicio, ':fin' => $fin]);
         $compensaciones = (float) $stmt->fetch()['total'];

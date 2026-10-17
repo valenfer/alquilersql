@@ -17,14 +17,17 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Support\Database;
+use App\Services\ContratoService;
 
 class DashboardService
 {
     private \PDO $pdo;
+    private ContratoService $contratoService;
 
     public function __construct()
     {
         $this->pdo = Database::obtenerConexion();
+        $this->contratoService = new ContratoService();
     }
 
     /**
@@ -40,6 +43,7 @@ class DashboardService
             'habitaciones' => $this->obtenerHabitaciones(),
             'indicadores' => $this->obtenerIndicadores($anio, $mes),
             'grafico' => $this->obtenerDatosGrafico($anio),
+            'alertas_contratos' => $this->contratoService->obtenerAlertasVencimiento(),
         ];
     }
 
@@ -51,7 +55,7 @@ class DashboardService
     private function obtenerHabitaciones(): array
     {
         $stmt = $this->pdo->query(
-            'SELECT h.id, h.numero, h.nombre, h.estado, h.renta_orientativa,
+            "SELECT h.id, h.numero, h.nombre, h.estado, h.renta_orientativa,
                     e.id AS estancia_id, i.nombre AS inquilino_nombre, i.apellidos AS inquilino_apellidos,
                     e.renta_mensual AS renta_actual, e.fecha_entrada
              FROM habitaciones h
@@ -59,7 +63,7 @@ class DashboardService
                  AND e.estado = 'activa'
                  AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > CURDATE())
              LEFT JOIN inquilinos i ON e.inquilino_id = i.id
-             ORDER BY h.numero ASC'
+             ORDER BY h.numero ASC"
         );
         $habitaciones = $stmt->fetchAll();
 
@@ -82,11 +86,11 @@ class DashboardService
     private function obtenerPendienteAlquilerHabitacion(int $habitacionId): float
     {
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(ROUND(c.importe_esperado - c.importe_cobrado, 2)), 0) AS total
+            "SELECT COALESCE(SUM(ROUND(c.importe_esperado - c.importe_cobrado, 2)), 0) AS total
              FROM cargos_alquiler c
              INNER JOIN estancias e ON c.estancia_id = e.id
              WHERE e.habitacion_id = :habitacion_id
-               AND c.estado IN ('pendiente', 'parcial')'
+               AND c.estado IN ('pendiente', 'parcial')"
         );
         $stmt->execute([':habitacion_id' => $habitacionId]);
         return (float) $stmt->fetch()['total'];
@@ -141,11 +145,11 @@ class DashboardService
         $totalHabitaciones = (int) $stmt->fetch()['total'];
 
         $stmt = $this->pdo->query(
-            'SELECT COUNT(DISTINCT h.id) AS ocupadas
+            "SELECT COUNT(DISTINCT h.id) AS ocupadas
              FROM habitaciones h
              INNER JOIN estancias e ON e.habitacion_id = h.id
              WHERE e.estado = 'activa'
-               AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > CURDATE())'
+               AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > CURDATE())"
         );
         $habitacionesOcupadas = (int) $stmt->fetch()['ocupadas'];
         $habitacionesLibres = $totalHabitaciones - $habitacionesOcupadas;
@@ -172,12 +176,12 @@ class DashboardService
         // Deuda vencida (cargos con vencimiento pasado y saldo pendiente)
         $hoy = date('Y-m-d');
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(ROUND(c.importe_esperado - c.importe_cobrado, 2)), 0) AS total,
+            "SELECT COALESCE(SUM(ROUND(c.importe_esperado - c.importe_cobrado, 2)), 0) AS total,
                     COUNT(DISTINCT e.inquilino_id) AS personas
              FROM cargos_alquiler c
              INNER JOIN estancias e ON c.estancia_id = e.id
              WHERE c.fecha_vencimiento < :hoy
-               AND c.estado IN ('pendiente', 'parcial')'
+               AND c.estado IN ('pendiente', 'parcial')"
         );
         $stmt->execute([':hoy' => $hoy]);
         $deuda = $stmt->fetch();
@@ -186,12 +190,12 @@ class DashboardService
 
         // Facturas sin cargo bancario completo
         $stmt = $this->pdo->query(
-            'SELECT COUNT(*) AS total
+            "SELECT COUNT(*) AS total
              FROM facturas_suministro f
              LEFT JOIN pagos_proveedor p ON f.id = p.factura_id
              WHERE f.estado = 'confirmada'
              GROUP BY f.id
-             HAVING COALESCE(SUM(p.importe), 0) < f.importe_total OR SUM(p.importe) IS NULL'
+             HAVING COALESCE(SUM(p.importe), 0) < f.importe_total OR SUM(p.importe) IS NULL"
         );
         $facturasSinCargo = $stmt->rowCount();
 
@@ -216,14 +220,14 @@ class DashboardService
 
         // Llaves pendientes de devolución en estancias finalizadas
         $stmt = $this->pdo->query(
-            'SELECT COALESCE(SUM(
+            "SELECT COALESCE(SUM(
                 CASE WHEN m.tipo = 'entrega' OR m.tipo = 'reposicion' THEN m.cantidad
                      WHEN m.tipo = 'devolucion' OR m.tipo = 'perdida' THEN -m.cantidad
-                END
-            ), 0) AS pendiente
+                 END
+             ), 0) AS pendiente
              FROM movimientos_llave m
              INNER JOIN estancias e ON m.estancia_id = e.id
-             WHERE e.estado = 'finalizada''
+             WHERE e.estado = 'finalizada'"
         );
         $llavesPendientes = (int) $stmt->fetch()['pendiente'];
 
@@ -259,7 +263,7 @@ class DashboardService
     private function obtenerPendienteSuministroMes(string $tipo, string $inicio, string $fin): float
     {
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(c.importe), 0) AS total_cuotas,
+            "SELECT COALESCE(SUM(c.importe), 0) AS total_cuotas,
                     COALESCE(SUM(a.importe), 0) AS total_cobrado
              FROM facturas_suministro f
              INNER JOIN repartos_factura r ON f.id = r.factura_id AND r.estado = 'confirmado'
@@ -267,7 +271,7 @@ class DashboardService
              LEFT JOIN aplicaciones_cobro a ON a.cuota_reparto_id = c.id
              WHERE f.tipo = :tipo
                AND f.periodo_desde BETWEEN :inicio AND :fin
-               AND f.estado = 'confirmada''
+               AND f.estado = 'confirmada'"
         );
         $stmt->execute([':tipo' => $tipo, ':inicio' => $inicio, ':fin' => $fin]);
         $fila = $stmt->fetch();
@@ -282,11 +286,11 @@ class DashboardService
     private function contarFacturasSinEntregar(): int
     {
         $stmt = $this->pdo->query(
-            'SELECT COUNT(DISTINCT f.id) AS total
+            "SELECT COUNT(DISTINCT f.id) AS total
              FROM facturas_suministro f
              LEFT JOIN repartos_factura r ON f.id = r.factura_id AND r.estado = 'confirmado'
              WHERE f.estado = 'confirmada'
-               AND r.id IS NULL'
+               AND r.id IS NULL"
         );
         return (int) $stmt->fetch()['total'];
     }

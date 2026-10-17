@@ -184,10 +184,10 @@ class EstanciaRepository
     public function estaOcupadaEnFecha(int $habitacionId, string $fecha): bool
     {
         $stmt = $this->pdo->prepare(
-            'SELECT COUNT(*) AS total FROM estancias
+            "SELECT COUNT(*) AS total FROM estancias
              WHERE habitacion_id = :habitacion_id
                AND fecha_entrada <= :fecha
-               AND COALESCE(fecha_salida_efectiva, fecha_salida_prevista, '9999-12-31') > :fecha'
+               AND COALESCE(fecha_salida_efectiva, fecha_salida_prevista, '9999-12-31') > :fecha"
         );
         $stmt->execute([
             ':habitacion_id' => $habitacionId,
@@ -284,11 +284,11 @@ class EstanciaRepository
     public function finalizar(int $id, string $fechaSalidaEfectiva): bool
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE estancias
+            "UPDATE estancias
              SET fecha_salida_efectiva = :fecha_salida_efectiva,
                  estado = 'finalizada',
                  fecha_actualizacion = NOW()
-             WHERE id = :id'
+             WHERE id = :id"
         );
         return $stmt->execute([
             ':id' => $id,
@@ -305,13 +305,13 @@ class EstanciaRepository
     public function obtenerActivaPorHabitacion(int $habitacionId): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT e.*, i.nombre AS inquilino_nombre, i.apellidos AS inquilino_apellidos
-            FROM estancias e
-            INNER JOIN inquilinos i ON e.inquilino_id = i.id
-            WHERE e.habitacion_id = :habitacion_id
-              AND e.estado = 'activa'
-              AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > CURDATE())
-            LIMIT 1'
+            "SELECT e.*, i.nombre AS inquilino_nombre, i.apellidos AS inquilino_apellidos
+             FROM estancias e
+             INNER JOIN inquilinos i ON e.inquilino_id = i.id
+             WHERE e.habitacion_id = :habitacion_id
+               AND e.estado = 'activa'
+               AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > CURDATE())
+             LIMIT 1"
         );
         $stmt->execute([':habitacion_id' => $habitacionId]);
         $fila = $stmt->fetch();

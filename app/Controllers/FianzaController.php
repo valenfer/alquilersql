@@ -270,11 +270,11 @@ class FianzaController
         // Obtener cargos pendientes de la estancia
         $pdo = \App\Support\Database::obtenerConexion();
         $stmt = $pdo->prepare(
-            'SELECT c.id, c.anio, c.mes, ROUND(c.importe_esperado - c.importe_cobrado, 2) AS saldo_pendiente
+            "SELECT c.id, c.anio, c.mes, ROUND(c.importe_esperado - c.importe_cobrado, 2) AS saldo_pendiente
              FROM cargos_alquiler c
              INNER JOIN estancias e ON c.estancia_id = e.id
              WHERE e.id = :estancia_id AND c.estado IN ('pendiente', 'parcial')
-             ORDER BY c.anio, c.mes'
+             ORDER BY c.anio, c.mes"
         );
         $stmt->execute([':estancia_id' => $fianza['estancia_id']]);
         $cargosPendientes = $stmt->fetchAll();

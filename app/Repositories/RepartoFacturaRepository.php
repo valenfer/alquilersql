@@ -73,10 +73,10 @@ class RepartoFacturaRepository
     public function obtenerUltimoConfirmado(int $facturaId): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT * FROM repartos_factura
+            "SELECT * FROM repartos_factura
              WHERE factura_id = :factura_id AND estado = 'confirmado'
              ORDER BY fecha_creacion DESC
-             LIMIT 1'
+             LIMIT 1"
         );
         $stmt->execute([':factura_id' => $facturaId]);
         $fila = $stmt->fetch();
@@ -92,8 +92,8 @@ class RepartoFacturaRepository
     public function tieneRepartoConfirmado(int $facturaId): bool
     {
         $stmt = $this->pdo->prepare(
-            'SELECT COUNT(*) AS total FROM repartos_factura
-             WHERE factura_id = :factura_id AND estado = 'confirmado''
+            "SELECT COUNT(*) AS total FROM repartos_factura
+             WHERE factura_id = :factura_id AND estado = 'confirmado'"
         );
         $stmt->execute([':factura_id' => $facturaId]);
         return (int) $stmt->fetch()['total'] > 0;

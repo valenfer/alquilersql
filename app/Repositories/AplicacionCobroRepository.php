@@ -49,10 +49,10 @@ class AplicacionCobroRepository
     public function crear(array $datos): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO aplicaciones_cobro
+            "INSERT INTO aplicaciones_cobro
              (cobro_id, tipo_destino, cargo_alquiler_id, cuota_reparto_id, fianza_id, importe, fecha_aplicacion)
              VALUES
-             (:cobro_id, 'alquiler', :cargo_alquiler_id, NULL, NULL, :importe, NOW())'
+             (:cobro_id, 'alquiler', :cargo_alquiler_id, NULL, NULL, :importe, NOW())"
         );
         $stmt->execute([
             ':cobro_id' => $datos['cobro_id'],
@@ -71,8 +71,8 @@ class AplicacionCobroRepository
     public function totalAplicadoACargo(int $cargoAlquilerId): float
     {
         $stmt = $this->pdo->prepare(
-            'SELECT COALESCE(SUM(importe), 0) AS total FROM aplicaciones_cobro
-             WHERE cargo_alquiler_id = :cargo_alquiler_id AND tipo_destino = 'alquiler''
+            "SELECT COALESCE(SUM(importe), 0) AS total FROM aplicaciones_cobro
+             WHERE cargo_alquiler_id = :cargo_alquiler_id AND tipo_destino = 'alquiler'"
         );
         $stmt->execute([':cargo_alquiler_id' => $cargoAlquilerId]);
         return (float) $stmt->fetch()['total'];

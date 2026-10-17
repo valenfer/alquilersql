@@ -63,13 +63,13 @@ class LiquidacionSalidaController
 
         // Deudas de alquiler pendientes
         $stmt = $pdo->prepare(
-            'SELECT c.id, c.anio, c.mes, c.importe_esperado, c.importe_cobrado,
+            "SELECT c.id, c.anio, c.mes, c.importe_esperado, c.importe_cobrado,
                     ROUND(c.importe_esperado - c.importe_cobrado, 2) AS saldo,
                     c.fecha_vencimiento, c.estado
              FROM cargos_alquiler c
              WHERE c.estancia_id = :estancia_id
                AND c.estado IN ('pendiente', 'parcial')
-             ORDER BY c.anio, c.mes'
+             ORDER BY c.anio, c.mes"
         );
         $stmt->execute([':estancia_id' => $estanciaId]);
         $deudasAlquiler = $stmt->fetchAll();
@@ -80,7 +80,7 @@ class LiquidacionSalidaController
 
         // Deudas de suministros (cuotas de reparto pendientes)
         $stmt = $pdo->prepare(
-            'SELECT cu.id, f.tipo, f.proveedor, f.numero_factura, f.periodo_desde, f.periodo_hasta,
+            "SELECT cu.id, f.tipo, f.proveedor, f.numero_factura, f.periodo_desde, f.periodo_hasta,
                     cu.importe AS cuota,
                     COALESCE(SUM(a.importe), 0) AS cobrado,
                     ROUND(cu.importe - COALESCE(SUM(a.importe), 0), 2) AS saldo
@@ -91,7 +91,7 @@ class LiquidacionSalidaController
              WHERE cu.estancia_id = :estancia_id
              GROUP BY cu.id
              HAVING saldo > 0
-             ORDER BY f.periodo_desde'
+             ORDER BY f.periodo_desde"
         );
         $stmt->execute([':estancia_id' => $estanciaId]);
         $deudasSuministros = $stmt->fetchAll();
@@ -102,14 +102,14 @@ class LiquidacionSalidaController
 
         // Fianza
         $stmt = $pdo->prepare(
-            'SELECT f.*, COALESCE(SUM(m.importe), 0) AS recibidas,
+            "SELECT f.*, COALESCE(SUM(m.importe), 0) AS recibidas,
                     COALESCE(SUM(CASE WHEN m.tipo = 'devolucion' THEN m.importe ELSE 0 END), 0) AS devueltas,
                     COALESCE(SUM(CASE WHEN m.tipo = 'aplicacion_deuda' THEN m.importe ELSE 0 END), 0) AS aplicadas,
                     COALESCE(SUM(CASE WHEN m.tipo = 'compensacion_danos' THEN m.importe ELSE 0 END), 0) AS compensaciones
              FROM fianzas f
              LEFT JOIN movimientos_fianza m ON f.id = m.fianza_id
              WHERE f.estancia_id = :estancia_id
-             GROUP BY f.id'
+             GROUP BY f.id"
         );
         $stmt->execute([':estancia_id' => $estanciaId]);
         $fianza = $stmt->fetch();
@@ -117,13 +117,13 @@ class LiquidacionSalidaController
 
         // Llaves pendientes
         $stmt = $pdo->prepare(
-            'SELECT COALESCE(SUM(
+            "SELECT COALESCE(SUM(
                 CASE WHEN m.tipo = 'entrega' OR m.tipo = 'reposicion' THEN m.cantidad
                      WHEN m.tipo = 'devolucion' OR m.tipo = 'perdida' THEN -m.cantidad
-                END
-            ), 0) AS pendiente
+                 END
+             ), 0) AS pendiente
              FROM movimientos_llave m
-             WHERE m.estancia_id = :estancia_id'
+             WHERE m.estancia_id = :estancia_id"
         );
         $stmt->execute([':estancia_id' => $estanciaId]);
         $llavesPendientes = (int) $stmt->fetch()['pendiente'];
@@ -132,7 +132,7 @@ class LiquidacionSalidaController
         $facturasPendientesReparto = false;
         if ($estancia['fecha_entrada'] && $estancia['fecha_salida_efectiva']) {
             $stmt = $pdo->prepare(
-                'SELECT COUNT(*) AS total
+                "SELECT COUNT(*) AS total
                  FROM facturas_suministro f
                  WHERE f.estado = 'confirmada'
                    AND f.periodo_desde >= :inicio
@@ -140,7 +140,7 @@ class LiquidacionSalidaController
                    AND NOT EXISTS (
                        SELECT 1 FROM repartos_factura r
                        WHERE r.factura_id = f.id AND r.estado = 'confirmado'
-                   )'
+                   )"
             );
             $stmt->execute([
                 ':inicio' => $estancia['fecha_entrada'],

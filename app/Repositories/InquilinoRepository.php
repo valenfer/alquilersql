@@ -145,13 +145,13 @@ class InquilinoRepository
     public function actualizar(int $id, array $datos): bool
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE inquilinos
+            "UPDATE inquilinos
              SET tipo_documento = :tipo_documento, numero_documento = :numero_documento,
-                 nombre = :nombre, apellidos = :apellidos, telefono = :telefono,
-                 email = :email, contacto_adicional = :contacto_adicional,
-                 observaciones = :observaciones, estado = :estado,
-                 fecha_archivado = CASE WHEN :estado = 'archivado' AND estado != 'archivado' THEN NOW() ELSE fecha_archivado END
-             WHERE id = :id'
+                  nombre = :nombre, apellidos = :apellidos, telefono = :telefono,
+                  email = :email, contacto_adicional = :contacto_adicional,
+                  observaciones = :observaciones, estado = :estado,
+                  fecha_archivado = CASE WHEN :estado = 'archivado' AND estado != 'archivado' THEN NOW() ELSE fecha_archivado END
+              WHERE id = :id"
         );
         return $stmt->execute([
             ':id' => $id,

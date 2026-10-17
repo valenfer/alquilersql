@@ -120,13 +120,69 @@ declare(strict_types=1);
             <div class="indicador-valor"><?= Security::html(number_format($indicadores['fianzas_mantenidas'], 2, ',', '.')) . ' €' ?></div>
             <div class="indicador-label">Fianzas mantenidas</div>
         </div>
-        <div class="indicador">
-            <div class="indicador-valor"><?= $indicadores['llaves_pendientes'] ?></div>
-            <div class="indicador-label">Llaves pendientes</div>
-        </div>
+    <div class="indicador">
+        <div class="indicador-valor"><?= $indicadores['llaves_pendientes'] ?></div>
+        <div class="indicador-label">Llaves pendientes</div>
     </div>
+</div>
 
-    <h3>Ingresos y gastos mensuales (<?= $anio ?>)</h3>
+<h3>📋 Alertas de contratos</h3>
+<div class="alertas-contratos">
+    <?php
+    $alertas = $alertas_contratos ?? [];
+    $tieneAlertas = false;
+    
+    // Contar total de alertas
+    foreach ($alertas as $tipo => $lista) {
+        if (!empty($lista)) {
+            $tieneAlertas = true;
+        }
+    }
+    ?>
+    
+    <?php if (!$tieneAlertas): ?>
+        <div class="alerta alerta-exito" role="alert">No hay contratos por vencer ni vencidos.</div>
+    <?php else: ?>
+        <?php if (!empty($alertas['15_dias'])): ?>
+            <div class="alerta alerta-error" role="alert">
+                <strong>🚨 Contratos que vencen en 15 días o menos:</strong>
+                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                    <?php foreach ($alertas['15_dias'] as $c): ?>
+                        <li><?= Security::html($c['inquilino_nombre'] . ' ' . $c['inquilino_apellidos']) ?> - Habitación <?= Security::html($c['habitacion_numero']) ?> - Vence <?= Security::html(date('d/m/Y', strtotime($c['fecha_fin']))) ?> (<?= (int) $c['dias_restantes'] ?> días)</li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (!empty($alertas['30_dias'])): ?>
+            <div class="alerta alerta-advertencia" role="alert">
+                <strong>⚠️ Contratos que vencen en 30 días:</strong>
+                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                    <?php foreach ($alertas['30_dias'] as $c): ?>
+                        <li><?= Security::html($c['inquilino_nombre'] . ' ' . $c['inquilino_apellidos']) ?> - Habitación <?= Security::html($c['habitacion_numero']) ?> - Vence <?= Security::html(date('d/m/Y', strtotime($c['fecha_fin']))) ?> (<?= (int) $c['dias_restantes'] ?> días)</li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (!empty($alertas['vencidos'])): ?>
+            <div class="alerta alerta-error" role="alert">
+                <strong>❌ Contratos ya vencidos:</strong>
+                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                    <?php foreach ($alertas['vencidos'] as $c): ?>
+                        <li><?= Security::html($c['inquilino_nombre'] . ' ' . $c['inquilino_apellidos']) ?> - Habitación <?= Security::html($c['habitacion_numero']) ?> - Venció <?= Security::html(date('d/m/Y', strtotime($c['fecha_fin']))) ?> (<?= (int) $c['dias_vencido'] ?> días atrás)</li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+        
+        <div style="margin-top: 1rem;">
+            <a href="?r=contratos/alertas" class="btn-guardar">Ver todas las alertas de contratos</a>
+        </div>
+    <?php endif; ?>
+</div>
+
+<h3>Ingresos y gastos mensuales (<?= $anio ?>)</h3>
     <div class="grafico-tabla">
         <div class="grafico-container">
             <svg id="grafico-barras" width="100%" height="300" role="img" aria-label="Gráfico de ingresos y gastos mensuales">

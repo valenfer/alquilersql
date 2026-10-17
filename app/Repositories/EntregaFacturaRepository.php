@@ -104,10 +104,10 @@ class EntregaFacturaRepository
     private function obtenerUltimoRepartoConfirmado(int $facturaId): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id FROM repartos_factura
+            "SELECT id FROM repartos_factura
              WHERE factura_id = :factura_id AND estado = 'confirmado'
              ORDER BY fecha_creacion DESC
-             LIMIT 1'
+             LIMIT 1"
         );
         $stmt->execute([':factura_id' => $facturaId]);
         $fila = $stmt->fetch();

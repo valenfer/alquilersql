@@ -79,7 +79,7 @@ class CobroService
     {
         $pdo = Database::obtenerConexion();
         $stmt = $pdo->prepare(
-            'SELECT c.id, c.anio, c.mes, c.importe_esperado, c.importe_cobrado,
+            "SELECT c.id, c.anio, c.mes, c.importe_esperado, c.importe_cobrado,
                     c.fecha_vencimiento, c.estado, h.numero AS habitacion_numero,
                     ROUND(c.importe_esperado - c.importe_cobrado, 2) AS saldo_pendiente
              FROM cargos_alquiler c
@@ -87,7 +87,7 @@ class CobroService
              INNER JOIN habitaciones h ON e.habitacion_id = h.id
              WHERE e.inquilino_id = :inquilino_id
                AND c.estado IN ('pendiente', 'parcial')
-             ORDER BY c.anio ASC, c.mes ASC'
+             ORDER BY c.anio ASC, c.mes ASC"
         );
         $stmt->execute([':inquilino_id' => $inquilinoId]);
         return $stmt->fetchAll();

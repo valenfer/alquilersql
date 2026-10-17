@@ -123,9 +123,9 @@ class CargoAlquilerRepository
     public function obtenerPendientesPorEstancia(int $estanciaId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT * FROM cargos_alquiler
+            "SELECT * FROM cargos_alquiler
              WHERE estancia_id = :estancia_id AND estado IN ('pendiente', 'parcial')
-             ORDER BY anio DESC, mes DESC'
+             ORDER BY anio DESC, mes DESC"
         );
         $stmt->execute([':estancia_id' => $estanciaId]);
         return $stmt->fetchAll();
@@ -140,12 +140,12 @@ class CargoAlquilerRepository
     public function crear(array $datos): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO cargos_alquiler
+            "INSERT INTO cargos_alquiler
              (estancia_id, anio, mes, periodo_desde, periodo_hasta, importe_esperado,
               fecha_vencimiento, importe_cobrado, estado, observaciones, fecha_creacion, creado_por)
              VALUES
              (:estancia_id, :anio, :mes, :periodo_desde, :periodo_hasta, :importe_esperado,
-              :fecha_vencimiento, 0.00, 'pendiente', :observaciones, NOW(), :creado_por)'
+              :fecha_vencimiento, 0.00, 'pendiente', :observaciones, NOW(), :creado_por)"
         );
         $stmt->execute([
             ':estancia_id' => $datos['estancia_id'],

@@ -66,7 +66,7 @@ class CobroController
 
         // Obtener inquilinos para filtro
         $pdo = \App\Support\Database::obtenerConexion();
-        $stmt = $pdo->query('SELECT id, nombre, apellidos FROM inquilinos WHERE estado = 'activa' ORDER BY apellidos, nombre');
+        $stmt = $pdo->query("SELECT id, nombre, apellidos FROM inquilinos WHERE estado = 'activa' ORDER BY apellidos, nombre");
         $inquilinos = $stmt->fetchAll();
 
         $medios = ['efectivo', 'transferencia', 'bizum', 'otro'];
@@ -99,7 +99,7 @@ class CobroController
         }
 
         $pdo = \App\Support\Database::obtenerConexion();
-        $stmt = $pdo->query('SELECT id, nombre, apellidos, numero_documento FROM inquilinos WHERE estado = 'activa' ORDER BY apellidos, nombre');
+        $stmt = $pdo->query("SELECT id, nombre, apellidos, numero_documento FROM inquilinos WHERE estado = 'activa' ORDER BY apellidos, nombre");
         $inquilinos = $stmt->fetchAll();
 
         $medios = ['efectivo', 'transferencia', 'bizum', 'otro'];

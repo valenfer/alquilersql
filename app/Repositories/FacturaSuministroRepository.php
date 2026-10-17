@@ -145,12 +145,12 @@ class FacturaSuministroRepository
         string $periodoHasta,
         ?int $idExcluir = null
     ): ?array {
-        $sql = '
+        $sql = "
             SELECT * FROM facturas_suministro
             WHERE tipo = :tipo
               AND periodo_desde <= :periodo_hasta
               AND periodo_hasta >= :periodo_desde
-              AND estado != 'anulada'';
+              AND estado != 'anulada'";
         $params = [
             ':tipo' => $tipo,
             ':periodo_hasta' => $periodoHasta,
@@ -265,10 +265,10 @@ class FacturaSuministroRepository
     public function obtenerConRepartoPendiente(): array
     {
         $stmt = $this->pdo->query(
-            'SELECT f.* FROM facturas_suministro f
+            "SELECT f.* FROM facturas_suministro f
              LEFT JOIN repartos_factura r ON f.id = r.factura_id AND r.estado = 'confirmado'
              WHERE f.estado = 'confirmada' AND r.id IS NULL
-             ORDER BY f.periodo_desde DESC'
+             ORDER BY f.periodo_desde DESC"
         );
         return $stmt->fetchAll();
     }
@@ -281,13 +281,13 @@ class FacturaSuministroRepository
     public function obtenerSinCargoBancarioCompleto(): array
     {
         $stmt = $this->pdo->query(
-            'SELECT f.*, COALESCE(SUM(p.importe), 0) AS total_pagado
+            "SELECT f.*, COALESCE(SUM(p.importe), 0) AS total_pagado
              FROM facturas_suministro f
              LEFT JOIN pagos_proveedor p ON f.id = p.factura_id
              WHERE f.estado = 'confirmada'
              GROUP BY f.id
              HAVING total_pagado < f.importe_total OR total_pagado IS NULL
-             ORDER BY f.periodo_desde DESC'
+             ORDER BY f.periodo_desde DESC"
         );
         return $stmt->fetchAll();
     }

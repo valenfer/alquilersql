@@ -431,11 +431,11 @@ class LlaveController
     {
         $pdo = \App\Support\Database::obtenerConexion();
         $stmt = $pdo->query(
-            'SELECT l.*, t.nombre AS tipo_nombre
+            "SELECT l.*, t.nombre AS tipo_nombre
              FROM llaves l
              INNER JOIN tipos_llave t ON l.tipo_llave_id = t.id
              WHERE l.estado = 'disponible'
-             ORDER BY t.nombre, l.identificador'
+             ORDER BY t.nombre, l.identificador"
         );
         return $stmt->fetchAll();
     }

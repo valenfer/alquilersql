@@ -84,9 +84,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\ExportController;
 use App\Controllers\InformeAnualController;
 use App\Controllers\LiquidacionSalidaController;
-use App\Controllers\HabitacionController;
-use App\Controllers\InquilinoController;
-use App\Controllers\EstanciaController;
+use App\Controllers\ContratoController;
 
 // Configurar base de datos
 Database::configurar($dbConfig);
@@ -525,6 +523,41 @@ switch ($ruta) {
                 break;
             default:
                 $accion = 'estancia';
+        }
+        break;
+    case 'contratos':
+        $controlador = new ContratoController();
+        switch ($subRuta) {
+            case null:
+            case '':
+                $accion = 'listar';
+                break;
+            case 'listar':
+                $accion = 'listar';
+                break;
+            case 'nuevo':
+                $accion = 'nuevo';
+                break;
+            case 'crear':
+                $accion = 'crear';
+                break;
+            case 'ver':
+                $accion = 'ver';
+                break;
+            case 'renovar':
+                $accion = 'renovar';
+                break;
+            case 'procesar-renovar':
+                $accion = 'procesarRenovar';
+                break;
+            case 'marcar-vencido':
+                $accion = 'marcarVencido';
+                break;
+            case 'alertas':
+                $accion = 'alertas';
+                break;
+            default:
+                $accion = 'listar';
         }
         break;
     default:

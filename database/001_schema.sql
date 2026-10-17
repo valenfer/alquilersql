@@ -3,6 +3,8 @@
 -- Importes monetarios: DECIMAL(12,2) para evitar problemas de punto flotante.
 -- Zona horaria de la aplicación: Europe/Madrid.
 
+SET FOREIGN_KEY_CHECKS=0;
+
 -- --------------------------------------------------------
 -- 1. Usuario propietario y configuración
 -- --------------------------------------------------------
@@ -91,7 +93,6 @@ CREATE TABLE IF NOT EXISTS `estancias` (
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_estancias_inquilino` FOREIGN KEY (`inquilino_id`) REFERENCES `inquilinos` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_estancias_habitacion` FOREIGN KEY (`habitacion_id`) REFERENCES `habitaciones` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_estancias_contrato_adjunto` FOREIGN KEY (`contrato_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL,
   CONSTRAINT `chk_estancias_salida_despues_entrada` CHECK (`fecha_salida_efectiva` IS NULL OR `fecha_salida_efectiva` >= `fecha_entrada`),
   CONSTRAINT `chk_estancias_prevista_despues_entrada` CHECK (`fecha_salida_prevista` IS NULL OR `fecha_salida_prevista` >= `fecha_entrada`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Separa persona de estancia. Intervalo [entrada, salida): entrada cuenta, salida no.';
@@ -167,7 +168,6 @@ CREATE TABLE IF NOT EXISTS `facturas_suministro` (
   `fecha_confirmacion` DATETIME NULL COMMENT 'Instante en que se confirmó',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_facturas_proveedor_tipo_numero` (`proveedor`, `tipo`, `numero_factura`),
-  CONSTRAINT `fk_facturas_documento` FOREIGN KEY (`documento_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_facturas_creado_por` FOREIGN KEY (`creado_por`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL,
   CONSTRAINT `chk_facturas_hasta_despues_desde` CHECK (`periodo_hasta` >= `periodo_desde`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Facturas de luz y agua. Estado de pago al proveedor y cobro a inquilinos son independientes.';
@@ -292,8 +292,6 @@ CREATE TABLE IF NOT EXISTS `aplicaciones_cobro` (
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_aplicaciones_cobro` FOREIGN KEY (`cobro_id`) REFERENCES `cobros` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_aplicaciones_cargo_alquiler` FOREIGN KEY (`cargo_alquiler_id`) REFERENCES `cargos_alquiler` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_aplicaciones_cuota_reparto` FOREIGN KEY (`cuota_reparto_id`) REFERENCES `cuotas_reparto` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_aplicaciones_fianza` FOREIGN KEY (`fianza_id`) REFERENCES `fianzas` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `chk_aplicaciones_destino_exclusivo` CHECK (
     (`tipo_destino` = 'alquiler' AND `cargo_alquiler_id` IS NOT NULL AND `cuota_reparto_id` IS NULL AND `fianza_id` IS NULL)
     OR (`tipo_destino` = 'suministro' AND `cargo_alquiler_id` IS NULL AND `cuota_reparto_id` IS NOT NULL AND `fianza_id` IS NULL)
@@ -363,7 +361,7 @@ CREATE TABLE IF NOT EXISTS `gastos` (
   `fecha_gasto` DATE NOT NULL COMMENT 'Fecha del gasto o del documento',
   `proveedor` VARCHAR(150) NULL COMMENT 'Proveedor opcional',
   `numero_factura` VARCHAR(100) NULL COMMENT 'Número de factura o justificante opcional',
-  `relacion_habitacion` TINYINT UNSIGNED NULL COMMENT 'Si se relaciona con una habitación concreta',
+  `relacion_habitacion` INT UNSIGNED NULL COMMENT 'Si se relaciona con una habitación concreta',
   `es_general` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1 = gasto general del piso, sin inquilino',
   `observaciones` TEXT NULL,
   `documento_adjunto_id` INT UNSIGNED NULL,
@@ -372,7 +370,6 @@ CREATE TABLE IF NOT EXISTS `gastos` (
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_gastos_categoria` FOREIGN KEY (`categoria_id`) REFERENCES `categorias_gasto` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_gastos_habitacion` FOREIGN KEY (`relacion_habitacion`) REFERENCES `habitaciones` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `fk_gastos_documento` FOREIGN KEY (`documento_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_gastos_creado_por` FOREIGN KEY (`creado_por`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Gastos del propietario. Comunidad e IBI no se reparten entre inquilinos.';
 
@@ -460,6 +457,39 @@ CREATE TABLE IF NOT EXISTS `adjuntos` (
   CONSTRAINT `fk_adjuntos_subido_por` FOREIGN KEY (`subido_por`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Archivos almacenados fuera de la raíz pública. MIME comprobado.';
 
+-- Claves foráneas añadidas después porque adjuntos se define después de algunas tablas que lo referencia
+ALTER TABLE `estancias`
+ADD CONSTRAINT `fk_estancias_contrato_adjunto` FOREIGN KEY (`contrato_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL;
+
+ALTER TABLE `facturas_suministro`
+ADD CONSTRAINT `fk_facturas_documento` FOREIGN KEY (`documento_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL;
+
+ALTER TABLE `gastos`
+ADD CONSTRAINT `fk_gastos_documento` FOREIGN KEY (`documento_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL;
+
+-- --------------------------------------------------------
+-- 19. Contratos de alquiler
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `contratos` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `estancia_id` INT UNSIGNED NOT NULL COMMENT 'Estancia a la que pertenece el contrato',
+  `fecha_inicio` DATE NOT NULL COMMENT 'Fecha de inicio del contrato',
+  `fecha_fin` DATE NOT NULL COMMENT 'Fecha de finalización del contrato',
+  `renta_mensual` DECIMAL(12,2) NOT NULL COMMENT 'Renta mensual acordada en el contrato',
+  `condiciones` TEXT NULL COMMENT 'Condiciones generales del contrato',
+  `clausulas_adicionales` TEXT NULL COMMENT 'Cláusulas adicionales o modificaciones',
+  `estado` ENUM('vigente','vencido','renovado') NOT NULL DEFAULT 'vigente' COMMENT 'Estado del contrato',
+  `documento_adjunto_id` INT UNSIGNED NULL COMMENT 'Contrato firmado adjunto',
+  `renovado_de_id` INT UNSIGNED NULL COMMENT 'Contrato del que se renueva (para historial)',
+  `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_contratos_estancia` FOREIGN KEY (`estancia_id`) REFERENCES `estancias` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_contratos_documento` FOREIGN KEY (`documento_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contratos_renovado_de` FOREIGN KEY (`renovado_de_id`) REFERENCES `contratos` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Contratos de alquiler con fecha de inicio y fin. Permiten renovación con nuevas condiciones.';
+
 -- --------------------------------------------------------
 -- 20. Auditoría
 -- --------------------------------------------------------
@@ -476,3 +506,10 @@ CREATE TABLE IF NOT EXISTS `auditoria` (
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_auditoria_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Quién, cuándo, qué y motivo en operaciones sensibles. Sin secretos ni binarios.';
+
+-- Claves foráneas añadidas al final porque cuotas_reparto y fianzas se definen después de aplicaciones_cobro
+ALTER TABLE `aplicaciones_cobro`
+ADD CONSTRAINT `fk_aplicaciones_cuota_reparto` FOREIGN KEY (`cuota_reparto_id`) REFERENCES `cuotas_reparto` (`id`) ON DELETE RESTRICT,
+ADD CONSTRAINT `fk_aplicaciones_fianza` FOREIGN KEY (`fianza_id`) REFERENCES `fianzas` (`id`) ON DELETE RESTRICT;
+
+SET FOREIGN_KEY_CHECKS=1;

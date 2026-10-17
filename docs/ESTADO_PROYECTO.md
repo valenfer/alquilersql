@@ -16,6 +16,7 @@ Se actualiza al finalizar cada fase.
 | Fase 5: Fianzas, llaves, gastos e incidencias | ✅ Completada | 17/10/2026 | Pendiente commit |
 | Fase 6: Dashboard, listados, exportaciones, informes, liquidaciones | ✅ Completada | 17/10/2026 | `3fae93a` |
 | Fase 7: Ayudas, accesibilidad, pruebas integrales, copias, documentación final | ✅ Completada | 17/10/2026 | `1c3870c` |
+| Fase 8: Contratos de alquiler con renovación y alertas de vencimiento | ✅ Completada | 17/10/2026 | Pendiente commit |
 
 ---
 
@@ -132,3 +133,43 @@ Crear los repositorios y servicios de la Fase 4, comenzando por `FacturaSuminist
 - No hay exportación CSV ni informes anuales (Fase 6).
 - Las ausencias temporales tienen tabla en BD pero sin interfaz de usuario.
 - El contrato adjunto opcional tiene columna en BD pero sin subida de archivos.
+
+---
+
+## Fase 8 — Completada (Contratos de alquiler)
+
+### Qué se construyó
+
+- **Tabla `contratos`** en el esquema SQL: fecha_inicio, fecha_fin, renta_mensual, condiciones, cláusulas adicionales, estado (vigente/vencido/renovado), documento adjunto, vínculo al contrato anterior en caso de renovación.
+- **Repositorio**: `ContratoRepository` — CRUD, obtener contrato vigente por estancia, obtener contratos por vencer (60, 30, 15 días), obtener contratos vencidos, marcar como renovado, marcar vencidos automáticamente.
+- **Servicio**: `ContratoService` — crear contrato, renovar contrato (marca el anterior como renovado y crea uno nuevo), obtener alertas de vencimiento clasificadas por días (60, 30, 15), marcar vencido automáticamente.
+- **Controlador**: `ContratoController` — listar, crear, ver, renovar, marcar vencido, ver alertas.
+- **Vistas**: listar contratos, formulario nuevo contrato, detalle de contrato, formulario renovar, alertas de vencimiento.
+- **Dashboard**: sección de alertas de contratos que muestra contratos por vencer en 60, 30 y 15 días, y contratos ya vencidos, con nombre e identificación de habitación e inquilino.
+- **Rutas**: `contratos`, `contratos/nuevo`, `contratos/crear`, `contratos/ver`, `contratos/renovar`, `contratos/procesar-renovar`, `contratos/marcar-vencido`, `contratos/alertas`.
+
+### Reglas clave implementadas
+
+- Un contrato tiene fecha de inicio y fin obligatorias.
+- Al renovar, el contrato anterior se marca como 'renovado' y se crea uno nuevo con posible cambio de renta y condiciones.
+- No se puede crear dos contratos vigentes para la misma estancia.
+- Las alertas se generan 60, 30 y 15 días antes del vencimiento.
+- Los contratos vencidos se pueden marcar manualmente como vencidos.
+
+### Tutorial (no subido a Git)
+
+- `tutorial_contratos.md`
+
+---
+
+## Próximo paso inmediato
+
+La aplicación está completa con todas las funcionalidades solicitadas. Se puede proceder a hacer pruebas funcionales y documentación adicional si es necesario.
+
+---
+
+## Limitaciones conocidas (actuales)
+
+- No hay subida de archivos adjuntos para contratos (la columna `documento_adjunto_id` existe pero sin interfaz de subida de archivos).
+- No hay envío automático de notificaciones por email para alertas de vencimiento (se muestran en pantalla).
+- El marcado automático de contratos vencidos requiere ejecutar `marcarVencidosAutomaticamente()` manualmente o mediante un script CLI.

@@ -49,8 +49,6 @@ $dbConfig = require $configDbPath;
 date_default_timezone_set($config['zona_horaria'] ?? 'Europe/Madrid');
 
 // Iniciar sesión
-require APP_ROOT . 'vendor/autoload.php'; // No hay autoload aún, cargamos manualmente
-
 // Cargar clases de soporte manualmente (sin Composer)
 spl_autoload_register(function ($clase) {
     $prefijo = 'App\\';

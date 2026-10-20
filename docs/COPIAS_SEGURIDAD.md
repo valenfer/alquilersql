@@ -50,19 +50,12 @@ cp -r storage/attachments /ruta/de/copia/
 
 ---
 
-## 4. Copia completa desde la aplicación (opcional)
+## 4. Copias desde la aplicación
 
-La aplicación incluye una opción de copia de seguridad en el menú
-**Configuración y copias**. Esta opción:
-
-1. Genera un archivo ZIP con la base de datos (mediante mysqldump si está
-   disponible) y los adjuntos.
-2. Incluye fecha, versión del esquema e instrucciones de restauración.
-3. Guarda la copia en `storage/backups/` (no accesible desde la web).
-4. Permite descargar la copia para guardarla externamente.
-
-> **Nota:** Si el sistema no tiene `mysqldump` disponible, la interfaz lo
-> indicará y no simulará una copia exitosa.
+La aplicación no incluye actualmente una interfaz para crear, descargar o
+restaurar copias de seguridad. Realice las copias con `mysqldump` y una copia
+de la carpeta de adjuntos siguiendo los pasos anteriores. Guarde también la
+configuración necesaria en un lugar seguro y separado del repositorio.
 
 ---
 

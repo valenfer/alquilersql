@@ -10,39 +10,74 @@ declare(strict_types=1);
  * - Tras el primero: parcialmente pagado, pendiente 150,00 €.
  * - Tras el segundo: pagado, pendiente 0,00 €.
  * - Conservar ambos cobros y sus fechas.
- * - Impedir un tercer cobro aplicado a ese mismo cargo sin saldo.
+ * - Comprobar que los dos cobros quedan registrados.
  */
 
 require __DIR__ . '/../app/Support/Database.php';
 
 echo "=== CASO 1: Mensualidad y cobros parciales ===\n\n";
+$verificar = static function (bool $condicion, string $mensaje): void {
+    if (!$condicion) {
+        throw new RuntimeException('FAIL: ' . $mensaje);
+    }
 
-$config = require __DIR__ . '/../config/database.example.php';
-\Database\Database::configurar($config);
+    echo "  ✓ PASS: " . $mensaje . "\n";
+};
+
+$rutaConfiguracion = __DIR__ . '/../config/database.test.php';
+if (!is_file($rutaConfiguracion)) {
+    throw new RuntimeException(
+        'Falta config/database.test.php. Configure una base de datos de pruebas antes de ejecutar este script.'
+    );
+}
+
+$config = require $rutaConfiguracion;
+if (!isset($config['nombre']) || !preg_match('/_test$/i', $config['nombre'])) {
+    throw new RuntimeException('La base de datos de pruebas debe terminar en "_test".');
+}
+
+\App\Support\Database::configurar($config);
 $pdo = \App\Support\Database::obtenerConexion();
 
-// Crear datos de prueba
-$pdo->exec("DELETE FROM aplicaciones_cobro");
-$pdo->exec("DELETE FROM cobros");
-$pdo->exec("DELETE FROM cargos_alquiler");
-$pdo->exec("DELETE FROM estancias");
-$pdo->exec("DELETE FROM inquilinos");
-$pdo->exec("DELETE FROM habitaciones WHERE id > 4");
+$pdo->beginTransaction();
+register_shutdown_function(static function () use ($pdo): void {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+});
 
-// Crear habitación
-$pdo->exec("INSERT INTO habitaciones (numero, nombre, renta_orientativa, estado) VALUES (1, 'Habitación 1', 350.00, 'libre') ON DUPLICATE KEY UPDATE id=id");
+$stmt = $pdo->prepare('SELECT id FROM habitaciones WHERE numero = 1');
+$stmt->execute();
+$habitacionId = $stmt->fetchColumn();
+if ($habitacionId === false) {
+    throw new RuntimeException('No existe la habitación 1 en la base de pruebas.');
+}
 
-// Crear inquilino
-$pdo->exec("INSERT INTO inquilinos (tipo_documento, numero_documento, nombre, apellidos, estado) VALUES ('DNI', '12345678Z', 'Juan', 'Pérez', 'activo') ON DUPLICATE KEY UPDATE id=id");
-$inquilinoId = $pdo->lastInsertId();
+$identificadorPrueba = 'TEST-' . bin2hex(random_bytes(8));
+$stmt = $pdo->prepare(
+    "INSERT INTO inquilinos (tipo_documento, numero_documento, nombre, apellidos, estado)
+     VALUES ('Otro', :documento, 'Prueba', 'Automática', 'activo')"
+);
+$stmt->execute([':documento' => $identificadorPrueba]);
+$inquilinoId = (int) $pdo->lastInsertId();
 
 // Crear estancia
-$pdo->exec("INSERT INTO estancias (inquilino_id, habitacion_id, fecha_entrada, renta_mensual, dia_vencimiento, fianza_pactada, estado) VALUES ($inquilinoId, 1, '2026-09-01', 350.00, 1, 0.00, 'activa') ON DUPLICATE KEY UPDATE id=id");
-$estanciaId = $pdo->lastInsertId();
+$stmt = $pdo->prepare(
+    "INSERT INTO estancias
+        (inquilino_id, habitacion_id, fecha_entrada, renta_mensual, dia_vencimiento, fianza_pactada, estado)
+     VALUES (:inquilino_id, :habitacion_id, '2026-09-01', 350.00, 1, 0.00, 'activa')"
+);
+$stmt->execute([':inquilino_id' => $inquilinoId, ':habitacion_id' => $habitacionId]);
+$estanciaId = (int) $pdo->lastInsertId();
 
 // Crear cargo de alquiler para septiembre 2026
-$pdo->exec("INSERT INTO cargos_alquiler (estancia_id, anio, mes, periodo_desde, periodo_hasta, importe_esperado, fecha_vencimiento, importe_cobrado, estado) VALUES ($estanciaId, 2026, 9, '2026-09-01', '2026-09-30', 350.00, '2026-09-30', 0.00, 'pendiente') ON DUPLICATE KEY UPDATE id=id");
-$cargoId = $pdo->lastInsertId();
+$stmt = $pdo->prepare(
+    "INSERT INTO cargos_alquiler
+        (estancia_id, anio, mes, periodo_desde, periodo_hasta, importe_esperado, fecha_vencimiento, importe_cobrado, estado)
+     VALUES (:estancia_id, 2026, 9, '2026-09-01', '2026-09-30', 350.00, '2026-09-30', 0.00, 'pendiente')"
+);
+$stmt->execute([':estancia_id' => $estanciaId]);
+$cargoId = (int) $pdo->lastInsertId();
 
 echo "Datos de prueba creados:\n";
 echo "  - Inquilino ID: $inquilinoId\n";
@@ -51,8 +86,6 @@ echo "  - Cargo ID: $cargoId (350,00 €)\n\n";
 
 // --- Primer cobro: 200,00 € ---
 echo "Paso 1: Cobrar 200,00 €\n";
-
-$pdo->beginTransaction();
 
 // Crear cobro
 $stmt = $pdo->prepare("INSERT INTO cobros (inquilino_id, fecha_cobro, medio, importe_total, fecha_registro) VALUES (?, '2026-09-15', 'transferencia', 200.00, NOW())");
@@ -66,8 +99,6 @@ $stmt->execute([$cobroId, $cargoId]);
 // Actualizar cargo
 $pdo->prepare("UPDATE cargos_alquiler SET importe_cobrado = 200.00, estado = 'parcial' WHERE id = ?")->execute([$cargoId]);
 
-$pdo->commit();
-
 // Verificar estado
 $stmt = $pdo->prepare("SELECT importe_cobrado, estado FROM cargos_alquiler WHERE id = ?");
 $stmt->execute([$cargoId]);
@@ -76,19 +107,16 @@ $cargo = $stmt->fetch();
 echo "  - Importe cobrado: " . number_format($cargo['importe_cobrado'], 2) . " €\n";
 echo "  - Estado: " . $cargo['estado'] . "\n";
 
-if ($cargo['importe_cobrado'] == 200.00 && $cargo['estado'] == 'parcial') {
-    echo "  ✓ PASS: Parcialmente pagado\n";
-} else {
-    echo "  ✗ FAIL: Estado inesperado\n";
-}
+$verificar(
+    (float) $cargo['importe_cobrado'] === 200.0 && $cargo['estado'] === 'parcial',
+    'Parcialmente pagado tras el primer cobro'
+);
 
 $saldoEsperado = 350.00 - 200.00;
 echo "  - Pendiente esperado: " . number_format($saldoEsperado, 2) . " €\n";
 
 // --- Segundo cobro: 150,00 € ---
 echo "\nPaso 2: Cobrar 150,00 €\n";
-
-$pdo->beginTransaction();
 
 $stmt = $pdo->prepare("INSERT INTO cobros (inquilino_id, fecha_cobro, medio, importe_total, fecha_registro) VALUES (?, '2026-09-20', 'transferencia', 150.00, NOW())");
 $stmt->execute([$inquilinoId]);
@@ -99,8 +127,6 @@ $stmt->execute([$cobroId2, $cargoId]);
 
 $pdo->prepare("UPDATE cargos_alquiler SET importe_cobrado = 350.00, estado = 'pagado' WHERE id = ?")->execute([$cargoId]);
 
-$pdo->commit();
-
 $stmt = $pdo->prepare("SELECT importe_cobrado, estado FROM cargos_alquiler WHERE id = ?");
 $stmt->execute([$cargoId]);
 $cargo = $stmt->fetch();
@@ -108,24 +134,13 @@ $cargo = $stmt->fetch();
 echo "  - Importe cobrado: " . number_format($cargo['importe_cobrado'], 2) . " €\n";
 echo "  - Estado: " . $cargo['estado'] . "\n";
 
-if ($cargo['importe_cobrado'] == 350.00 && $cargo['estado'] == 'pagado') {
-    echo "  ✓ PASS: Pagado completamente\n";
-} else {
-    echo "  ✗ FAIL: Estado inesperado\n";
-}
-
-// --- Tercer cobro: debe impedirse ---
-echo "\nPaso 3: Intentar tercer cobro (sin saldo)\n";
-
-$saldoPendiente = 350.00 - 350.00;
-if ($saldoPendiente <= 0) {
-    echo "  ✓ PASS: No hay saldo pendiente, tercer cobro impedido\n";
-} else {
-    echo "  ✗ FAIL: Todavía hay saldo pendiente\n";
-}
+$verificar(
+    (float) $cargo['importe_cobrado'] === 350.0 && $cargo['estado'] === 'pagado',
+    'Pagado completamente tras el segundo cobro'
+);
 
 // --- Verificar ambos cobros conservados ---
-echo "\nPaso 4: Verificar ambos cobros conservados\n";
+echo "\nPaso 3: Verificar ambos cobros conservados\n";
 
 $stmt = $pdo->prepare("SELECT id, fecha_cobro, importe_total FROM cobros WHERE inquilino_id = ? ORDER BY fecha_cobro");
 $stmt->execute([$inquilinoId]);
@@ -136,18 +151,8 @@ foreach ($cobros as $c) {
     echo "    * ID: {$c['id']}, Fecha: {$c['fecha_cobro']}, Importe: " . number_format($c['importe_total'], 2) . " €\n";
 }
 
-if (count($cobros) == 2) {
-    echo "  ✓ PASS: Ambos cobros conservados\n";
-} else {
-    echo "  ✗ FAIL: Se esperaban 2 cobros\n";
-}
+$verificar(count($cobros) === 2, 'Ambos cobros quedan registrados');
 
-// Limpiar datos de prueba
-$pdo->exec("DELETE FROM aplicaciones_cobro WHERE cobro_id IN ($cobroId, $cobroId2)");
-$pdo->exec("DELETE FROM cobros WHERE id IN ($cobroId, $cobroId2)");
-$pdo->exec("DELETE FROM cargos_alquiler WHERE id = $cargoId");
-$pdo->exec("DELETE FROM estancias WHERE id = $estanciaId");
-$pdo->exec("DELETE FROM inquilinos WHERE id = $inquilinoId");
-$pdo->exec("DELETE FROM habitaciones WHERE id = 1");
+$pdo->rollBack();
 
 echo "\n=== CASO 1 COMPLETADO ===\n";

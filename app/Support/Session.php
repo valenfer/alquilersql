@@ -21,9 +21,10 @@ class Session
      */
     public static function iniciar(array $config): void
     {
+        $ttl = (int) ($config['sesion_ttl'] ?? 14400);
+
         if (session_status() === PHP_SESSION_NONE) {
             $nombre = $config['sesion_nombre'] ?? 'alquiler_sesion';
-            $ttl = (int) ($config['sesion_ttl'] ?? 14400);
 
             session_name($nombre);
             ini_set('session.gc_maxlifetime', (string) $ttl);

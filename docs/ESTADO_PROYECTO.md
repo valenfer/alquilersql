@@ -15,7 +15,7 @@ Se actualiza al finalizar cada fase.
 | Fase 4: Facturas de suministros, pagos al proveedor, reparto manual, entregas, comprobación | ✅ Completada | 17/10/2026 | `a9654aa` |
 | Fase 5: Fianzas, llaves, gastos e incidencias | ✅ Completada | 17/10/2026 | Pendiente commit |
 | Fase 6: Dashboard, listados, exportaciones, informes, liquidaciones | ✅ Completada | 17/10/2026 | `3fae93a` |
-| Fase 7: Ayudas, accesibilidad, pruebas integrales, copias, documentación final | ✅ Completada | 17/10/2026 | `1c3870c` |
+| Fase 7: Ayudas, accesibilidad, pruebas, copias, documentación final | ⚠ Parcial | 17/10/2026 | `1c3870c` |
 | Fase 8: Contratos de alquiler con renovación y alertas de vencimiento | ✅ Completada | 17/10/2026 | `921c6ad` |
 
 ---
@@ -94,45 +94,13 @@ Se actualiza al finalizar cada fase.
 
 ---
 
-## Fase 4 — Pendiente (siguiente a implementar)
+## Estado de las fases 4–6 y avance de fase 7
 
-### Objetivo
-
-Facturas de suministros (luz/agua), pagos al proveedor, reparto manual acordado por inquilinos, entregas de facturas y comprobación de cobros por factura.
-
-### Tareas pendientes
-
-1. **Repositorios**: `FacturaSuministroRepository`, `PagoProveedorRepository`, `RepartoFacturaRepository`, `CuotaRepartoRepository`, `EntregaFacturaRepository`.
-2. **Servicios**: `FacturaSuministroService`, `RepartoService`, `EntregaFacturaService`, `ComprobacionFacturaService`.
-3. **Controladores**: `FacturaSuministroController`, `RepartoController`, `EntregaFacturaController`, `ComprobacionFacturaController`.
-4. **Vistas**: listar facturas, formulario factura, pago al proveedor, reparto manual, entregas, comprobación por factura.
-5. **index.php**: rutas para facturas, repartos, entregas, comprobación.
-
-### Reglas clave a implementar
-
-- Reparto manual únicamente (no calcular automáticamente).
-- Diferencia = total factura − suma cuotas = 0 para confirmar.
-- Habitación vacía no genera cuota ni parte del propietario.
-- Cero explícito (0,00 €) distinto de campo vacío.
-- Comprobación independiente: cuadre de reparto vs cuadre de dinero.
-- Facturas pueden quedar en "Reparto pendiente" sin cuotas ficticias.
-
----
-
-## Próximo paso inmediato
-
-Crear los repositorios y servicios de la Fase 4, comenzando por `FacturaSuministroRepository` y `FacturaSuministroService`.
-
----
-
-## Limitaciones conocidas (actuales)
-
-- No hay cobros de suministros (luz/agua) todavía.
-- No hay fianzas ni aplicaciones a fianza (Fase 5).
-- No hay dashboard con indicadores (Fase 6).
-- No hay exportación CSV ni informes anuales (Fase 6).
-- Las ausencias temporales tienen tabla en BD pero sin interfaz de usuario.
-- El contrato adjunto opcional tiene columna en BD pero sin subida de archivos.
+Las fases 4–6 están implementadas: facturas y reparto manual de suministros,
+fianzas, llaves, gastos, incidencias, dashboard, exportaciones, informes y
+liquidaciones. La fase 7 cuenta con ayudas, accesibilidad y documentación, pero
+la mayoría de sus pruebas no están automatizadas y no hay una interfaz
+integrada para copias. Los detalles están en `docs/PRUEBAS.md`.
 
 ---
 
@@ -162,9 +130,14 @@ Crear los repositorios y servicios de la Fase 4, comenzando por `FacturaSuminist
 
 ---
 
-## Próximo paso inmediato
+## Próximos pasos recomendados
 
-La aplicación está completa con todas las funcionalidades solicitadas. Se puede proceder a hacer pruebas funcionales y documentación adicional si es necesario.
+1. Completar las pruebas automatizadas de `docs/PRUEBAS.md` sobre una base de
+   datos aislada.
+2. Implementar y probar un flujo integrado de copia y restauración; actualmente
+   las copias se realizan de forma manual según `docs/COPIAS_SEGURIDAD.md`.
+3. Añadir subida segura de documentos para contratos y una tarea programada
+   para actualizar estados y avisos de vencimiento.
 
 ---
 
@@ -173,3 +146,4 @@ La aplicación está completa con todas las funcionalidades solicitadas. Se pued
 - No hay subida de archivos adjuntos para contratos (la columna `documento_adjunto_id` existe pero sin interfaz de subida de archivos).
 - No hay envío automático de notificaciones por email para alertas de vencimiento (se muestran en pantalla).
 - El marcado automático de contratos vencidos requiere ejecutar `marcarVencidosAutomaticamente()` manualmente o mediante un script CLI.
+- La creación y restauración de copias no están integradas en la aplicación.

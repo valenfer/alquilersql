@@ -206,17 +206,7 @@ class Auth
         $_SESSION['inicio_sesion'] = time();
         $_SESSION['ultima_actividad'] = time();
 
-        // Configurar cookie de sesión segura
-        $params = session_get_cookie_params();
-        setcookie(
-            session_name(),
-            session_id(),
-            time() + ($config['sesion_ttl'] ?? 14400),
-            $params['path'],
-            $params['domain'],
-            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on', // secure
-            true, // httponly
-            'Lax' // samesite
-        );
+        // Session::iniciar configura las opciones de cookie antes de session_start().
+        // session_regenerate_id() vuelve a emitir la cookie con esas opciones.
     }
 }

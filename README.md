@@ -23,8 +23,14 @@ en formato `dd/mm/aaaa`.
 Copiar todo el contenido del proyecto en la carpeta pública del servidor web,
 por ejemplo `C:\xampp\htdocs\alquiler\`.
 
-Solo `public/` debe ser accesible desde la web. Las carpetas `config/`,
-`app/`, `database/`, `storage/` y `scripts/` no deben estar expuestas.
+El archivo `.htaccess` de la raíz restringe las peticiones web a `public/` y
+desactiva el listado de directorios. En Apache, habilitar `mod_rewrite` y
+permitir las directivas `Options` y `FileInfo` en `.htaccess` (por ejemplo,
+`AllowOverride Options FileInfo`). Si el servidor no admite `.htaccess`,
+configurar el `DocumentRoot` directamente a la carpeta `public/`; no exponer
+la raíz del proyecto. Las carpetas
+`config/`, `app/`, `database/`, `storage/` y `scripts/` deben permanecer fuera
+de la raíz web efectiva.
 
 ### 2. Configurar la base de datos
 

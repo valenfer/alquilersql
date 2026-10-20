@@ -2,8 +2,11 @@
 /tutorial_*.md
 
 # Configuración local con secretos (no subir)
+/config/app.php
+/config/database.php
 config/*.local.php
 config/db.local.php
+/config/database.test.php
 
 # Almacenamiento local del propietario
 storage/attachments/*

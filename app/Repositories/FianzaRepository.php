@@ -123,7 +123,7 @@ class FianzaRepository
               importe_aplicado_deuda, saldo_pendiente_devolver, fecha_creacion)
              VALUES
              (:estancia_id, :importe_pactado, :importe_recibido, 0.00, 0.00,
-              :saldo_pendiente_devolver, NOW())'
+              :saldo_pendiente_devolver, datetime('datetime('now')'))'
         );
         $saldoPendiente = (float) ($datos['importe_recibido'] ?? 0.00);
         $stmt->execute([

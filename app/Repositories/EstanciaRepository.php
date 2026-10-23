@@ -212,7 +212,7 @@ class EstanciaRepository
              VALUES
              (:inquilino_id, :habitacion_id, :fecha_entrada, :fecha_salida_prevista,
               :fecha_salida_efectiva, :renta_mensual, :dia_vencimiento, :fianza_pactada,
-              :referencia_contrato, :contrato_adjunto_id, :estado, NOW(), NOW())'
+              :referencia_contrato, :contrato_adjunto_id, :estado, datetime('datetime('now')'), datetime('datetime('now')'))'
         );
         $stmt->execute([
             ':inquilino_id' => $datos['inquilino_id'],
@@ -267,7 +267,7 @@ class EstanciaRepository
             return false;
         }
 
-        $campos[] = 'fecha_actualizacion = NOW()';
+        $campos[] = 'fecha_actualizacion = datetime(\'datetime('now')\')';
         $sql = 'UPDATE estancias SET ' . implode(', ', $campos) . ' WHERE id = :id';
 
         $stmt = $this->pdo->prepare($sql);
@@ -287,7 +287,7 @@ class EstanciaRepository
             "UPDATE estancias
              SET fecha_salida_efectiva = :fecha_salida_efectiva,
                  estado = 'finalizada',
-                 fecha_actualizacion = NOW()
+fecha_actualizacion = datetime('datetime('now')')
              WHERE id = :id"
         );
         return $stmt->execute([
@@ -310,10 +310,11 @@ class EstanciaRepository
              INNER JOIN inquilinos i ON e.inquilino_id = i.id
              WHERE e.habitacion_id = :habitacion_id
                AND e.estado = 'activa'
-               AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > CURDATE())
+               AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > :hoy)
              LIMIT 1"
         );
-        $stmt->execute([':habitacion_id' => $habitacionId]);
+        $hoy = date('Y-m-d');
+        $stmt->execute([':habitacion_id' => $habitacionId, ':hoy' => $hoy]);
         $fila = $stmt->fetch();
         return $fila ? $fila : null;
     }

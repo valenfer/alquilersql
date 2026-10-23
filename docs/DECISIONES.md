@@ -10,7 +10,7 @@ los valores predeterminados y el motivo de cada una.
 | Decisión | Valor | Motivo |
 |----------|-------|--------|
 | Lenguaje backend | PHP 8.0+ | Requisito obligatorio del documento. No frameworks. |
-| Base de datos | MySQL/MariaDB InnoDB | Requisito obligatorio. Soporta claves foráneas y transacciones. |
+| Base de datos | SQLite | Motor de base de datos embebido, sin servidor separado, archivo local. |
 | Codificación | utf8mb4 | Requisito obligatorio. Soporte completo de Unicode. |
 | Acceso a datos | PDO con consultas preparadas | Requisito obligatorio. Previene inyección SQL. |
 | Frontend | HTML5 + CSS propio + JS nativo | Requisito obligatorio. No frameworks CSS ni JS. |

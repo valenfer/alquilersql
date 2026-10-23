@@ -186,9 +186,9 @@ class FacturaSuministroRepository
              VALUES
              (:tipo, :proveedor, :numero_factura, :fecha_emision, :periodo_desde, :periodo_hasta,
               :importe_total, :fecha_vencimiento, :estado, :documento_adjunto_id, :observaciones,
-              NOW(), :creado_por, :fecha_confirmacion)'
+              datetime('datetime('now')'), :creado_por, :fecha_confirmacion)'
         );
-        $fechaConfirmacion = $datos['estado'] === 'confirmada' ? 'NOW()' : 'NULL';
+        $fechaConfirmacion = $datos['estado'] === 'confirmada' ? 'datetime('now')()' : 'NULL';
         // Nota: se usa un truco para evitar inyección; mejor hacer dos prepares si es necesario.
         // Aquí usamos un enfoque simple:
         $stmt2 = $this->pdo->prepare(
@@ -199,7 +199,7 @@ class FacturaSuministroRepository
              VALUES
              (:tipo, :proveedor, :numero_factura, :fecha_emision, :periodo_desde, :periodo_hasta,
               :importe_total, :fecha_vencimiento, :estado, :documento_adjunto_id, :observaciones,
-              NOW(), :creado_por, ' . ($datos['estado'] === 'confirmada' ? 'NOW()' : 'NULL') . ')'
+              datetime('now')(), :creado_por, ' . ($datos['estado'] === 'confirmada' ? 'datetime('now')()' : 'NULL') . ')'
         );
         $stmt2->execute([
             ':tipo' => $datos['tipo'],
@@ -227,7 +227,7 @@ class FacturaSuministroRepository
      */
     public function actualizar(int $id, array $datos): bool
     {
-        $fechaConfirmacion = $datos['estado'] === 'confirmada' ? 'NOW()' : (isset($datos['fecha_confirmacion']) ? $datos['fecha_confirmacion'] : 'NULL');
+        $fechaConfirmacion = $datos['estado'] === 'confirmada' ? 'datetime('now')()' : (isset($datos['fecha_confirmacion']) ? $datos['fecha_confirmacion'] : 'NULL');
 
         $stmt = $this->pdo->prepare(
             'UPDATE facturas_suministro

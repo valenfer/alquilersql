@@ -145,7 +145,7 @@ class CargoAlquilerRepository
               fecha_vencimiento, importe_cobrado, estado, observaciones, fecha_creacion, creado_por)
              VALUES
              (:estancia_id, :anio, :mes, :periodo_desde, :periodo_hasta, :importe_esperado,
-              :fecha_vencimiento, 0.00, 'pendiente', :observaciones, NOW(), :creado_por)"
+              :fecha_vencimiento, 0.00, 'pendiente', :observaciones, datetime('datetime('now')'), :creado_por)"
         );
         $stmt->execute([
             ':estancia_id' => $datos['estancia_id'],

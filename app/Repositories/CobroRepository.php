@@ -114,7 +114,7 @@ class CobroRepository
               token_idempotencia, fecha_registro, registrado_por)
              VALUES
              (:inquilino_id, :fecha_cobro, :medio, :importe_total, :referencia, :observaciones,
-              :token_idempotencia, NOW(), :registrado_por)'
+              :token_idempotencia, datetime('datetime('now')'), :registrado_por)'
         );
         $stmt->execute([
             ':inquilino_id' => $datos['inquilino_id'],

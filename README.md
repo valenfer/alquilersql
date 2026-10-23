@@ -2,7 +2,7 @@
 
 Aplicación web completa para que un propietario gestione un único piso con
 cuatro habitaciones alquiladas por habitaciones. Construida con **PHP puro**
-(sin frameworks), **MySQL** (InnoDB, `utf8mb4`), **HTML5/CSS/JS propios** y
+(sin frameworks), **SQLite** (PDO), **HTML5/CSS/JS propios** y
 **PDO** con consultas preparadas.
 
 Diseñada para una persona mayor con pocos conocimientos de informática: letra
@@ -11,9 +11,9 @@ en formato `dd/mm/aaaa`.
 
 ## Requisitos
 
-- Servidor web con PHP 8.0+ y MySQL/MariaDB (probado con XAMPP).
-- Extensiones PHP: `pdo`, `pdo_mysql`, `mbstring`, `gd` (opcional, para adjuntos de imagen).
-- MySQL con motor InnoDB.
+- Servidor web con PHP 8.0+ con la extensión `pdo` y `pdo_sqlite` (probado con XAMPP).
+- Extensiones PHP: `pdo`, `pdo_sqlite`, `mbstring`, `gd` (opcional, para adjuntos de imagen).
+- No se requiere servidor de bases de datos separado: SQLite usa un archivo local.
 - Navegador moderno.
 
 ## Instalación paso a paso
@@ -32,31 +32,23 @@ la raíz del proyecto. Las carpetas
 `config/`, `app/`, `database/`, `storage/` y `scripts/` deben permanecer fuera
 de la raíz web efectiva.
 
-### 2. Configurar la base de datos
+### 2. Configurar la base de datos SQLite
 
-1. Abrir phpMyAdmin o la consola de MySQL.
-2. Crear una base de datos, por ejemplo `alquiler`, con codificación
-   `utf8mb4` y cotejamiento `utf8mb4_spanish_ci`.
-3. Crear un usuario de ejecución con permisos sobre esa base de datos:
-
-```sql
-CREATE DATABASE IF NOT EXISTS alquiler CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci;
-CREATE USER IF NOT EXISTS 'alquiler_app'@'localhost' IDENTIFIED BY 'cambiar_esta_contraseña';
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, DROP, REFERENCES ON alquiler.* TO 'alquiler_app'@'localhost';
-FLUSH PRIVILEGES;
-```
-
-4. Copiar `config/database.example.php` a `config/database.php` y editar los
-   datos de conexión (host, nombre de base de datos, usuario, contraseña).
+1. Verificar que la carpeta `storage/` exista y sea escribible por el usuario del servidor web.
+2. El archivo de base de datos se creará automáticamente en `storage/alquiler.sqlite`.
+3. Copiar `config/database.example.php` a `config/database.php` (el archivo ya está preconfigurado con la ruta por defecto).
 
 ### 3. Ejecutar el esquema
 
-Importar el esquema completo desde la consola de MySQL o phpMyAdmin:
+Ejecutar el esquema SQLite desde la línea de comando o la interfaz web:
 
 ```bash
-mysql -u alquiler_app -p alquiler < database/001_schema.sql
-mysql -u alquiler_app -p alquiler < database/002_seed_base.sql
+php database/001_schema.sql
 ```
+
+O bien, la primera vez que se accede a `http://localhost/alquiler/public/index.php`,
+la aplicación detectará que la base de datos no tiene las tablas necesarias y
+lanzará el asistente de instalación que creará el esquema automáticamente.
 
 ### 4. Ejecutar la instalación web
 

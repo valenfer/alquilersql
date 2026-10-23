@@ -115,7 +115,7 @@ class HabitacionRepository
     ): int {
         $stmt = $this->pdo->prepare(
             'INSERT INTO habitaciones (numero, nombre, descripcion, renta_orientativa, estado, fecha_creacion)
-             VALUES (:numero, :nombre, :descripcion, :renta_orientativa, :estado, NOW())'
+             VALUES (:numero, :nombre, :descripcion, :renta_orientativa, :estado, datetime('now')())'
         );
         $stmt->execute([
             ':numero' => $numero,

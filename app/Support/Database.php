@@ -2,16 +2,16 @@
 declare(strict_types=1);
 
 /**
- * Clase Database — Gestión de la conexión PDO a MySQL.
+ * Clase Database — Gestión de la conexión PDO a SQLite.
  *
  * Responsabilidad:
  *  - Establecer y mantener una única conexión PDO (patrón Singleton ligero).
- *  - Configurar UTF-8mb4, zona horaria Europe/Madrid y modo de errores por excepción.
+ *  - Configurar UTF-8, modo de errores por excepción y claves foráneas.
  *  - Proporcionar acceso a la conexión para consultas preparadas.
  *
  * Reglas de seguridad:
  *  - Todas las consultas deben usar consultas preparadas (no concatenar valores en SQL).
- *  - Las credenciales provienen de config/database.php (fuera de la raíz web).
+ *  - Las credenciales no requieren host/usuario/contraseña (SQLite local).
  *  - No guarda secretos en auditoría ni en logs.
  */
 
@@ -28,7 +28,7 @@ class Database
     /**
      * Establece la configuración de conexión.
      *
-     * @param array $config Claves: host, puerto, nombre, usuario, password, charset, options
+     * @param array $config Claves: driver, ruta, options
      */
     public static function configurar(array $config): void
     {
@@ -38,7 +38,7 @@ class Database
     /**
      * Devuelve la conexión PDO, creándola si es necesario.
      *
-     * @return PDO Conexión activa a MySQL
+     * @return PDO Conexión activa a SQLite
      * @throws PDOException Si no se puede conectar
      */
     public static function obtenerConexion(): PDO
@@ -46,20 +46,30 @@ class Database
         if (self::$conexion === null) {
             $cfg = self::$config;
 
+            // DSN para SQLite: ruta absoluta al archivo de base de datos
             $dsn = sprintf(
-                'mysql:host=%s;port=%d;dbname=%s;charset=%s',
-                $cfg['host'],
-                (int) $cfg['puerto'],
-                $cfg['nombre'],
-                $cfg['charset']
+                'sqlite:%s',
+                $cfg['ruta']
             );
 
-            self::$conexion = new PDO($dsn, $cfg['usuario'], $cfg['password'], $cfg['options']);
+            // Crear el directorio si no existe
+            $directorio = dirname($cfg['ruta']);
+            if (!is_dir($directorio)) {
+                mkdir($directorio, 0755, true);
+            }
 
-            // Zona horaria de la aplicación para instantes y fechas calculadas
-            self::$conexion->exec("SET time_zone = '+01:00'");
-            // Nota: '+01:00' es CET. En verano (CEST) es '+02:00'.
-            // PHP/MySQL manejan el horario de verano si el servidor tiene la zona correcta.
+            self::$conexion = new PDO($dsn, null, null, $cfg['options']);
+
+            // Activar claves foráneas en SQLite
+            self::$conexion->exec('PRAGMA foreign_keys = ON');
+
+            // Configurar zona horaria para fechas de negocio (Europe/Madrid)
+            // SQLite no tiene funciones de fecha built-in con zona horaria,
+            // así que usamos PHP date_default_timezone_set
+            date_default_timezone_set('Europe/Madrid');
+
+            // Configurar modo de resultados de fecha/hora
+            self::$conexion->exec('PRAGMA date_format = "%Y-%m-%d %H:%M:%S"');
         }
 
         return self::$conexion;

@@ -59,7 +59,7 @@ class MovimientoLlaveRepository
             'INSERT INTO movimientos_llave
              (estancia_id, llave_id, tipo, cantidad, fecha, observaciones, fecha_registro, registrado_por)
              VALUES
-             (:estancia_id, :llave_id, :tipo, :cantidad, :fecha, :observaciones, NOW(), :registrado_por)'
+             (:estancia_id, :llave_id, :tipo, :cantidad, :fecha, :observaciones, datetime('datetime('now')'), :registrado_por)'
         );
         $stmt->execute([
             ':estancia_id' => $datos['estancia_id'],

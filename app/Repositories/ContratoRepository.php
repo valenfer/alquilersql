@@ -88,8 +88,8 @@ class ContratoRepository
              INNER JOIN inquilinos i ON e.inquilino_id = i.id
              WHERE c.estancia_id = :estancia_id
                AND c.estado = 'vigente'
-               AND c.fecha_inicio <= CURDATE()
-               AND (c.fecha_fin IS NULL OR c.fecha_fin >= CURDATE())
+               AND c.fecha_inicio <= :hoy
+               AND (c.fecha_fin IS NULL OR c.fecha_fin >= :hoy)
              ORDER BY c.fecha_inicio DESC
              LIMIT 1"
         );
@@ -111,8 +111,8 @@ class ContratoRepository
         $stmt = $this->pdo->prepare(
             "SELECT c.*, h.numero AS habitacion_numero, h.nombre AS habitacion_nombre,
                     i.id AS inquilino_id, i.nombre AS inquilino_nombre, i.apellidos AS inquilino_apellidos,
-                    i.numero_documento AS inquilino_documento,
-                    DATEDIFF(c.fecha_fin, CURDATE()) AS dias_restantes
+(i.numero_documento AS inquilino_documento,
+                     (julianday(c.fecha_fin) - julianday(:hoy)) AS dias_restantes
              FROM contratos c
              INNER JOIN estancias e ON c.estancia_id = e.id
              INNER JOIN habitaciones h ON e.habitacion_id = h.id
@@ -120,7 +120,7 @@ class ContratoRepository
              WHERE c.estado = 'vigente'
                AND c.fecha_fin IS NOT NULL
                AND c.fecha_fin <= :fecha_limite
-               AND c.fecha_fin >= CURDATE()
+               AND c.fecha_fin >= :hoy()
              ORDER BY c.fecha_fin ASC"
         );
         $stmt->execute([':fecha_limite' => $fechaLimite]);
@@ -137,15 +137,15 @@ class ContratoRepository
         $stmt = $this->pdo->query(
             "SELECT c.*, h.numero AS habitacion_numero, h.nombre AS habitacion_nombre,
                     i.id AS inquilino_id, i.nombre AS inquilino_nombre, i.apellidos AS inquilino_apellidos,
-                    i.numero_documento AS inquilino_documento,
-                    DATEDIFF(CURDATE(), c.fecha_fin) AS dias_vencido
+i.numero_documento AS inquilino_documento,
+                     (julianday(:hoy) - julianday(c.fecha_fin)) AS dias_vencido
              FROM contratos c
              INNER JOIN estancias e ON c.estancia_id = e.id
              INNER JOIN habitaciones h ON e.habitacion_id = h.id
              INNER JOIN inquilinos i ON e.inquilino_id = i.id
              WHERE c.estado = 'vigente'
                AND c.fecha_fin IS NOT NULL
-               AND c.fecha_fin < CURDATE()
+               AND c.fecha_fin < :hoy
              ORDER BY c.fecha_fin ASC"
         );
         return $stmt->fetchAll();
@@ -167,7 +167,7 @@ class ContratoRepository
              VALUES
              (:estancia_id, :fecha_inicio, :fecha_fin, :renta_mensual, :condiciones,
               :clausulas_adicionales, :estado, :documento_adjunto_id, :renovado_de_id,
-              NOW(), NOW())'
+              datetime('now')(), datetime('now')())'
         );
         $stmt->execute([
             ':estancia_id' => $datos['estancia_id'],
@@ -217,7 +217,7 @@ class ContratoRepository
             return false;
         }
 
-        $campos[] = 'fecha_actualizacion = NOW()';
+        $campos[] = 'fecha_actualizacion = datetime('now')()';
         $sql = 'UPDATE contratos SET ' . implode(', ', $campos) . ' WHERE id = :id';
 
         $stmt = $this->pdo->prepare($sql);
@@ -233,7 +233,7 @@ class ContratoRepository
     public function marcarComoRenovado(int $id): bool
     {
         $stmt = $this->pdo->prepare(
-            "UPDATE contratos SET estado = 'renovado', fecha_actualizacion = NOW() WHERE id = :id"
+            "UPDATE contratos SET estado = 'renovado', fecha_actualizacion = datetime('now')() WHERE id = :id"
         );
         return $stmt->execute([':id' => $id]);
     }
@@ -261,10 +261,10 @@ class ContratoRepository
     public function marcarVencidosAutomaticamente(): int
     {
         $stmt = $this->pdo->prepare(
-            "UPDATE contratos SET estado = 'vencido', fecha_actualizacion = NOW()
+            "UPDATE contratos SET estado = 'vencido', fecha_actualizacion = datetime('now')
              WHERE estado = 'vigente'
                AND fecha_fin IS NOT NULL
-               AND fecha_fin < CURDATE()"
+               AND fecha_fin < :hoy"
         );
         $stmt->execute();
         return $stmt->rowCount();

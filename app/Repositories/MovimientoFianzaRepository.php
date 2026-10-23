@@ -57,7 +57,7 @@ class MovimientoFianzaRepository
               fecha_registro, registrado_por)
              VALUES
              (:fianza_id, :tipo, :importe, :fecha, :medio, :cargo_alquiler_id, :motivo, :observaciones,
-              NOW(), :registrado_por)'
+              datetime('now')(), :registrado_por)'
         );
         $stmt->execute([
             ':fianza_id' => $datos['fianza_id'],

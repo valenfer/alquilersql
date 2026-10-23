@@ -4,7 +4,7 @@ Este documento describe las tablas de la base de datos, sus relaciones,
 restricciones y el propósito de cada campo. El esquema se crea con
 `database/001_schema.sql` y las semillas base con `database/002_seed_base.sql`.
 
-Motor: InnoDB. Codificación: utf8mb4. Fechas de negocio: DATE. Importes:
+Motor: SQLite. Codificación: utf8mb4 por defecto. Fechas de negocio: DATE. Importes:
 DECIMAL(12,2).
 
 ---

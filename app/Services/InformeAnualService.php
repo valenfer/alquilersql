@@ -300,7 +300,7 @@ class InformeAnualService
         $totalDiasHabitacion = 4 * $diasPeriodo;
 
         $stmt = $this->pdo->query(
-            'SELECT SUM(DATEDIFF(LEAST(COALESCE(fecha_salida_efectiva, fecha_salida_prevista, DATE_ADD(fecha_entrada, INTERVAL 1 DAY)), fecha_entrada), 0)) AS dias_ocupados
+            'SELECT SUM((julianday(COALESCE(fecha_salida_efectiva, fecha_salida_prevista, date(fecha_entrada, '+1 day'))) - julianday(fecha_entrada))) AS dias_ocupados
              FROM estancias
              WHERE fecha_entrada <= :fin
                AND (fecha_salida_efectiva IS NULL OR fecha_salida_efectiva >= :inicio)'

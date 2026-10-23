@@ -127,7 +127,7 @@ class InstallController
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare(
             'INSERT INTO usuarios (usuario, password_hash, nombre, email, activo, fecha_creacion)
-             VALUES (:usuario, :hash, :nombre, :email, 1, NOW())'
+             VALUES (:usuario, :hash, :nombre, :email, 1, datetime('datetime('now')'))'
         );
 
         if ($stmt->execute([

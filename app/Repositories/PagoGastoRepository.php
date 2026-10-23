@@ -35,7 +35,7 @@ class PagoGastoRepository
               fecha_registro, registrado_por)
              VALUES
              (:gasto_id, :importe, :fecha_pago, :medio, :referencia, :observaciones,
-              NOW(), :registrado_por)'
+              datetime('datetime('now')'), :registrado_por)'
         );
         $stmt->execute([
             ':gasto_id' => $datos['gasto_id'],

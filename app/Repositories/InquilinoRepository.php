@@ -119,7 +119,7 @@ class InquilinoRepository
               contacto_adicional, observaciones, estado, fecha_creacion)
              VALUES
              (:tipo_documento, :numero_documento, :nombre, :apellidos, :telefono, :email,
-              :contacto_adicional, :observaciones, :estado, NOW())'
+              :contacto_adicional, :observaciones, :estado, datetime('datetime('now')'))'
         );
         $stmt->execute([
             ':tipo_documento' => $datos['tipo_documento'],
@@ -150,7 +150,7 @@ class InquilinoRepository
                   nombre = :nombre, apellidos = :apellidos, telefono = :telefono,
                   email = :email, contacto_adicional = :contacto_adicional,
                   observaciones = :observaciones, estado = :estado,
-                  fecha_archivado = CASE WHEN :estado = 'archivado' AND estado != 'archivado' THEN NOW() ELSE fecha_archivado END
+                  fecha_archivado = CASE WHEN :estado = 'archivado' AND estado != 'archivado' THEN datetime('datetime('now')') ELSE fecha_archivado END
               WHERE id = :id"
         );
         return $stmt->execute([

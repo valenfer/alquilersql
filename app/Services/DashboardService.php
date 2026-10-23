@@ -61,7 +61,7 @@ class DashboardService
              FROM habitaciones h
              LEFT JOIN estancias e ON e.habitacion_id = h.id
                  AND e.estado = 'activa'
-                 AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > CURDATE())
+AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > :hoy)
              LEFT JOIN inquilinos i ON e.inquilino_id = i.id
              ORDER BY h.numero ASC"
         );
@@ -149,7 +149,7 @@ class DashboardService
              FROM habitaciones h
              INNER JOIN estancias e ON e.habitacion_id = h.id
              WHERE e.estado = 'activa'
-               AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > CURDATE())"
+               AND (e.fecha_salida_efectiva IS NULL OR e.fecha_salida_efectiva > :hoy)"
         );
         $habitacionesOcupadas = (int) $stmt->fetch()['ocupadas'];
         $habitacionesLibres = $totalHabitaciones - $habitacionesOcupadas;

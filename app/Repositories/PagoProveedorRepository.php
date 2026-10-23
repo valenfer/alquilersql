@@ -110,7 +110,7 @@ class PagoProveedorRepository
               fecha_registro, registrado_por)
              VALUES
              (:factura_id, :importe, :fecha_real, :medio, :referencia, :observaciones,
-              NOW(), :registrado_por)'
+              datetime('datetime('now')'), :registrado_por)'
         );
         $stmt->execute([
             ':factura_id' => $datos['factura_id'],

@@ -65,7 +65,7 @@ class IncidenciaRepository
             'INSERT INTO incidencias
              (habitacion_id, descripcion, fecha_aviso, estado, fecha_resolucion, fecha_creacion)
              VALUES
-             (:habitacion_id, :descripcion, :fecha_aviso, :estado, :fecha_resolucion, NOW())'
+             (:habitacion_id, :descripcion, :fecha_aviso, :estado, :fecha_resolucion, datetime('datetime('now')'))'
         );
         $stmt->execute([
             ':habitacion_id' => $datos['habitacion_id'] ?? null,

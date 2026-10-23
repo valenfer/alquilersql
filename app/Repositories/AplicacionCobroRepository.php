@@ -52,7 +52,7 @@ class AplicacionCobroRepository
             "INSERT INTO aplicaciones_cobro
              (cobro_id, tipo_destino, cargo_alquiler_id, cuota_reparto_id, fianza_id, importe, fecha_aplicacion)
              VALUES
-             (:cobro_id, 'alquiler', :cargo_alquiler_id, NULL, NULL, :importe, NOW())"
+             (:cobro_id, 'alquiler', :cargo_alquiler_id, NULL, NULL, :importe, datetime('datetime('now')'))"
         );
         $stmt->execute([
             ':cobro_id' => $datos['cobro_id'],

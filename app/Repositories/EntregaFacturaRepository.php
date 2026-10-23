@@ -62,7 +62,7 @@ class EntregaFacturaRepository
               observaciones, fecha_registro, registrado_por)
              VALUES
              (:factura_id, :estancia_id, :fecha_entrega, :medio, :confirmacion_recepcion,
-              :observaciones, NOW(), :registrado_por)'
+              :observaciones, datetime('datetime('now')'), :registrado_por)'
         );
         $stmt->execute([
             ':factura_id' => $datos['factura_id'],

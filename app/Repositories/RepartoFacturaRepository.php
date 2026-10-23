@@ -113,7 +113,7 @@ class RepartoFacturaRepository
               diferencia_pendiente, estado, reparto_anterior_id, fecha_creacion)
              VALUES
              (:factura_id, :fecha_acuerdo, :autor, :observaciones, :total_asignado,
-              :diferencia_pendiente, :estado, :reparto_anterior_id, NOW())'
+              :diferencia_pendiente, :estado, :reparto_anterior_id, datetime('datetime('now')'))'
         );
         $stmt->execute([
             ':factura_id' => $datos['factura_id'],

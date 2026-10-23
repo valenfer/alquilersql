@@ -102,7 +102,7 @@ class GastoRepository
              VALUES
              (:categoria_id, :descripcion, :importe, :fecha_gasto, :proveedor, :numero_factura,
               :relacion_habitacion, :es_general, :observaciones, :documento_adjunto_id,
-              NOW(), :creado_por)'
+              datetime('datetime('now')'), :creado_por)'
         );
         $stmt->execute([
             ':categoria_id' => $datos['categoria_id'],

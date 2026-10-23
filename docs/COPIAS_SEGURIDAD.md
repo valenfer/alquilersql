@@ -9,7 +9,8 @@ aplicación, tanto en XAMPP como en un servidor habitual.
 
 Una copia completa contiene:
 
-1. **Base de datos MySQL**: todas las tablas, datos y esquema.
+1. **Base de datos SQLite**: el archivo `storage/alquiler.sqlite` con todas las
+   tablas y datos.
 2. **Adjuntos**: archivos subidos (contratos, facturas, etc.) en
    `storage/attachments/`.
 3. **Configuración**: `config/database.php` y `config/app.php` (sin secretos,
@@ -18,20 +19,25 @@ Una copia completa contiene:
 
 ---
 
-## 2. Copia de seguridad de la base de datos (MySQL)
+## 2. Copia de seguridad de la base de datos (SQLite)
 
-### Usando mysqldump (línea de comandos)
+### Usando el administrador de archivos o línea de comandos
 
 ```bash
-mysqldump -u alquiler_app -p alquiler > copia_alquiler_$(date +%Y%m%d_%H%M%S).sql
+# En Windows (copia el archivo)
+copy storage\alquiler.sqlite "C:\copias\alquiler_$(date +%Y%m%d_%H%M%S).sqlite"
+
+# En Linux/macOS
+cp storage/alquiler.sqlite /ruta/de/copia/alquiler_$(date +%Y%m%d_%H%M%S).sqlite
 ```
 
-### Usando phpMyAdmin
+### Características de SQLite
 
-1. Abrir phpMyAdmin.
-2. Seleccionar la base de datos `alquiler`.
-3. Ir a "Exportar".
-4. Seleccionar formato SQL y ejecutar.
+- La base de datos es un solo archivo, por lo que no requiere `mysqldump` ni
+  herramientas externas.
+- Para copiar la base de datos mientras la aplicación está en uso, es recomendable
+  detener el servidor web o usar el modo WAL (`PRAGMA journal = WAL`) para
+  consistencia.
 
 ---
 
@@ -53,18 +59,21 @@ cp -r storage/attachments /ruta/de/copia/
 ## 4. Copias desde la aplicación
 
 La aplicación no incluye actualmente una interfaz para crear, descargar o
-restaurar copias de seguridad. Realice las copias con `mysqldump` y una copia
-de la carpeta de adjuntos siguiendo los pasos anteriores. Guarde también la
-configuración necesaria en un lugar seguro y separado del repositorio.
+restaurar copias de seguridad. Realice la copia del archivo `storage/alquiler.sqlite`
+y una copia de la carpeta de adjuntos siguiendo los pasos anteriores. Guarde también
+la configuración necesaria en un lugar seguro y separado del repositorio.
 
 ---
 
 ## 5. Restauración de una copia
 
-### Paso 1: Restaurar la base de datos
+### Paso 1: Restaurar la base de datos SQLite
 
 ```bash
-mysql -u alquiler_app -p alquiler < copia_alquiler_YYYYMMDD_HHMMSS.sql
+# Copiar la copia de seguridad al lugar original
+copy "C:\copias\alquiler_YYYYMMDD_HHMMSS.sqlite" storage\alquiler.sqlite
+# O en Linux
+cp /ruta/de/copia/alquiler_YYYYMMDD_HHMMSS.sqlite storage/alquiler.sqlite
 ```
 
 ### Paso 2: Restaurar los adjuntos
@@ -81,15 +90,15 @@ cp -r /ruta/de/copia/attachments/* storage/attachments/
 
 ### Paso 3: Verificar la configuración
 
-1. Copiar `config/database.example.php` a `config/database.php` y editar con
-   los datos de la nueva base de datos.
+1. Verificar que `config/database.php` apunte al archivo correcto (por defecto
+   `storage/alquiler.sqlite`).
 2. Copiar `config/app.example.php` a `config/app.php` si es necesario.
 3. Verificar que las carpetas `storage/` tengan permisos de escritura.
 
 ### Paso 4: Probar la aplicación
 
 Acceder a la aplicación y verificar que:
-- Se puede iniciar sesión.
+- Se puede iniciar sesión con el propietario.
 - Los datos están completos.
 - Los adjuntos son accesibles.
 
@@ -98,7 +107,7 @@ Acceder a la aplicación y verificar que:
 ## 6. Seguridad en las copias
 
 - Las copias se almacenan en `storage/backups/` (fuera de la raíz pública).
-- No se dejan copias descargables en una carpeta pública.
+- No se dejen copias descargables en una carpeta pública.
 - El acceso a las copias requiere autenticación de propietario.
 - La restauración pide confirmación porque sustituye datos.
 - Antes de restaurar, la aplicación ofrece crear una copia previa de seguridad.
@@ -107,12 +116,10 @@ Acceder a la aplicación y verificar que:
 
 ## 7. Procedimiento recomendado en XAMPP
 
-1. Detener Apache y MySQL (opcional, para consistencia).
-2. Ejecutar `mysqldump` para exportar la base de datos.
+1. Detener Apache (opcional, para consistencia total con WAL).
+2. Copiar `storage/alquiler.sqlite` a `storage/backups/alquiler_YYYYMMDD_HHMMSS.sqlite`.
 3. Copiar la carpeta `storage/attachments`.
-4. Copiar `config/` (los archivos `.php` con credenciales).
-5. Guardar todo en una ubicación externa (USB, disco externo, nube).
-6. Reiniciar los servicios.
+4. Guardar todo en una ubicación externa (USB, disco externo, nube).
 
 ---
 

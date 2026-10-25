@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista inquilinos/formulario.php — Formulario para crear o editar un inquilino.
  *
@@ -15,13 +17,13 @@ declare(strict_types=1);
     <h2><?= Security::html($titulo) ?></h2>
 
     <?php if (!empty($flash['error_inquilino'])): ?>
-        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_inquilino']) ?></div>
+        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_inquilino']['valor']) ?></div>
     <?php endif; ?>
 
     <form action="?r=inquilinos/<?= $accion === 'crear' ? 'crear' : 'actualizar' ?>" method="post" novalidate>
         <input type="hidden" name="csrf_token" value="<?= Security::attr($csrf) ?>">
         <?php if ($accion === 'actualizar'): ?>
-            <input type="hidden" name="id" value="<?= Security::attr($id) ?>">
+            <input type="hidden" name="id" value="<?= Security::attr((string) $id) ?>">
         <?php endif; ?>
 
         <div class="campo">

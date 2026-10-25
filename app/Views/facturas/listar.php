@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista facturas/listar.php — Listado de facturas de luz y agua.
  *
@@ -15,16 +17,16 @@ declare(strict_types=1);
     <h2><?= Security::html($titulo) ?></h2>
 
     <?php if (!empty($flash['factura_creada'])): ?>
-        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['factura_creada']) ?></div>
+        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['factura_creada']['valor']) ?></div>
     <?php endif; ?>
     <?php if (!empty($flash['factura_actualizada'])): ?>
-        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['factura_actualizada']) ?></div>
+        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['factura_actualizada']['valor']) ?></div>
     <?php endif; ?>
     <?php if (!empty($flash['factura_anulada'])): ?>
-        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['factura_anulada']) ?></div>
+        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['factura_anulada']['valor']) ?></div>
     <?php endif; ?>
     <?php if (!empty($flash['error_factura'])): ?>
-        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_factura']) ?></div>
+        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_factura']['valor']) ?></div>
     <?php endif; ?>
 
     <div class="acciones-lista">

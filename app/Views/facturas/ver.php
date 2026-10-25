@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista facturas/ver.php — Detalle de una factura de suministro.
  *

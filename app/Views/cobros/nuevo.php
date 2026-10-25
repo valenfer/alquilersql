@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista cobros/nuevo.php — Formulario para registrar un cobro.
  *
@@ -16,12 +18,12 @@ declare(strict_types=1);
     <h2><?= Security::html($titulo) ?></h2>
 
     <?php if (!empty($flash['error_cobro'])): ?>
-        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_cobro']) ?></div>
+        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_cobro']['valor']) ?></div>
     <?php endif; ?>
 
     <form action="?r=cobros/crear" method="post" id="formCobro" novalidate>
         <input type="hidden" name="csrf_token" value="<?= Security::attr($csrf) ?>">
-        <input type="hidden" name="token_idempotencia" id="token_idempotencia" value="<?= Security::attr(Session::tokenCsrf()) ?>">
+        <input type="hidden" name="token_idempotencia" id="token_idempotencia" value="<?= Security::attr(Security::tokenIdempotencia()) ?>">
         <input type="hidden" name="aplicaciones_json" id="aplicaciones_json" value='[]'>
 
         <div class="paso" id="paso1">

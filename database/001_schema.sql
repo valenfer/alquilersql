@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `configuracion` (
   `clave` VARCHAR(100) NOT NULL UNIQUE,
   `valor` TEXT NOT NULL,
   `descripcion` VARCHAR(255) NULL,
-  `fecha_modificacion` DATETIME NOT NULL DEFAULT (datetime('now')) ON UPDATE datetime('now'),
+  `fecha_modificacion` DATETIME NOT NULL DEFAULT (datetime('now')),
   `modificado_por` INTEGER UNSIGNED NULL,
   CONSTRAINT `fk_configuracion_modificado_por` FOREIGN KEY (`modificado_por`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 );
@@ -87,16 +87,17 @@ CREATE TABLE IF NOT EXISTS `estancias` (
   `contrato_adjunto_id` INTEGER UNSIGNED NULL,
   `estado` TEXT NOT NULL DEFAULT 'prevista',
   `fecha_creacion` DATETIME NOT NULL DEFAULT (datetime('now')),
-  `fecha_actualizacion` DATETIME NOT NULL DEFAULT (datetime('now')) ON UPDATE datetime('now'),
+  `fecha_actualizacion` DATETIME NOT NULL DEFAULT (datetime('now')),
   CONSTRAINT `fk_estancias_inquilino` FOREIGN KEY (`inquilino_id`) REFERENCES `inquilinos` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_estancias_habitacion` FOREIGN KEY (`habitacion_id`) REFERENCES `habitaciones` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_estancias_contrato_adjunto` FOREIGN KEY (`contrato_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL,
   CONSTRAINT `chk_estancias_salida_despues_entrada` CHECK (`fecha_salida_efectiva` IS NULL OR `fecha_salida_efectiva` >= `fecha_entrada`),
   CONSTRAINT `chk_estancias_prevista_despues_entrada` CHECK (`fecha_salida_prevista` IS NULL OR `fecha_salida_prevista` >= `fecha_entrada`)
 );
 
 -- Índices para prevenir solapamientos
-CREATE INDEX `idx_estancias_habitacion_fechas` ON `estancias` (`habitacion_id`, `fecha_entrada`, `fecha_salida_efectiva`);
-CREATE INDEX `idx_estancias_inquilino_fechas` ON `estancias` (`inquilino_id`, `fecha_entrada`, `fecha_salida_efectiva`);
+CREATE INDEX IF NOT EXISTS `idx_estancias_habitacion_fechas` ON `estancias` (`habitacion_id`, `fecha_entrada`, `fecha_salida_efectiva`);
+CREATE INDEX IF NOT EXISTS `idx_estancias_inquilino_fechas` ON `estancias` (`inquilino_id`, `fecha_entrada`, `fecha_salida_efectiva`);
 
 -- --------------------------------------------------------
 -- 5. Ausencias temporales (contexto, no afectan alquiler ni cuotas)
@@ -137,8 +138,8 @@ CREATE TABLE IF NOT EXISTS `cargos_alquiler` (
   CONSTRAINT `chk_cargos_hasta_despues_desde` CHECK (`periodo_hasta` >= `periodo_desde`)
 );
 
-CREATE INDEX `idx_cargos_alquiler_estado_vencimiento` ON `cargos_alquiler` (`estado`, `fecha_vencimiento`);
-CREATE INDEX `idx_cargos_alquiler_anio_mes` ON `cargos_alquiler` (`anio`, `mes`);
+CREATE INDEX IF NOT EXISTS `idx_cargos_alquiler_estado_vencimiento` ON `cargos_alquiler` (`estado`, `fecha_vencimiento`);
+CREATE INDEX IF NOT EXISTS `idx_cargos_alquiler_anio_mes` ON `cargos_alquiler` (`anio`, `mes`);
 
 -- --------------------------------------------------------
 -- 7. Facturas de suministros (luz y agua)
@@ -161,11 +162,12 @@ CREATE TABLE IF NOT EXISTS `facturas_suministro` (
   `creado_por` INTEGER UNSIGNED NULL,
   `fecha_confirmacion` DATETIME NULL,
   CONSTRAINT `fk_facturas_creado_por` FOREIGN KEY (`creado_por`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_facturas_documento` FOREIGN KEY (`documento_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL,
   CONSTRAINT `chk_facturas_hasta_despues_desde` CHECK (`periodo_hasta` >= `periodo_desde`)
 );
 
-CREATE INDEX `idx_facturas_tipo_periodo` ON `facturas_suministro` (`tipo`, `periodo_desde`, `periodo_hasta`);
-CREATE INDEX `idx_facturas_estado` ON `facturas_suministro` (`estado`);
+CREATE INDEX IF NOT EXISTS `idx_facturas_tipo_periodo` ON `facturas_suministro` (`tipo`, `periodo_desde`, `periodo_hasta`);
+CREATE INDEX IF NOT EXISTS `idx_facturas_estado` ON `facturas_suministro` (`estado`);
 
 -- --------------------------------------------------------
 -- 8. Pagos al proveedor (cargo bancario)
@@ -204,7 +206,7 @@ CREATE TABLE IF NOT EXISTS `repartos_factura` (
   CONSTRAINT `fk_repartos_anterior` FOREIGN KEY (`reparto_anterior_id`) REFERENCES `repartos_factura` (`id`) ON DELETE SET NULL
 );
 
-CREATE INDEX `idx_repartos_factura_estado` ON `repartos_factura` (`factura_id`, `estado`);
+CREATE INDEX IF NOT EXISTS `idx_repartos_factura_estado` ON `repartos_factura` (`factura_id`, `estado`);
 
 -- --------------------------------------------------------
 -- 10. Cuotas de reparto por destinatario
@@ -260,7 +262,7 @@ CREATE TABLE IF NOT EXISTS `cobros` (
   CONSTRAINT `fk_cobros_registrado_por` FOREIGN KEY (`registrado_por`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 );
 
-CREATE INDEX `idx_cobros_inquilino_fecha` ON `cobros` (`inquilino_id`, `fecha_cobro`);
+CREATE INDEX IF NOT EXISTS `idx_cobros_inquilino_fecha` ON `cobros` (`inquilino_id`, `fecha_cobro`);
 
 -- --------------------------------------------------------
 -- 13. Aplicaciones de cobro (desglose a deudas concretas)
@@ -299,11 +301,11 @@ CREATE TABLE IF NOT EXISTS `fianzas` (
   `importe_aplicado_deuda` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `saldo_pendiente_devolver` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `fecha_creacion` DATETIME NOT NULL DEFAULT (datetime('now')),
-  `fecha_actualizacion` DATETIME NOT NULL DEFAULT (datetime('now')) ON UPDATE datetime('now'),
+  `fecha_actualizacion` DATETIME NOT NULL DEFAULT (datetime('now')),
   CONSTRAINT `fk_fianzas_estancia` FOREIGN KEY (`estancia_id`) REFERENCES `estancias` (`id`) ON DELETE RESTRICT
 );
 
-CREATE INDEX `idx_fianzas_estancia` ON `fianzas` (`estancia_id`);
+CREATE INDEX IF NOT EXISTS `idx_fianzas_estancia` ON `fianzas` (`estancia_id`);
 
 -- --------------------------------------------------------
 -- 15. Movimientos de fianza (recibos, devoluciones, aplicaciones)
@@ -353,6 +355,7 @@ CREATE TABLE IF NOT EXISTS `gastos` (
   `creado_por` INTEGER UNSIGNED NULL,
   CONSTRAINT `fk_gastos_categoria` FOREIGN KEY (`categoria_id`) REFERENCES `categorias_gasto` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_gastos_habitacion` FOREIGN KEY (`relacion_habitacion`) REFERENCES `habitaciones` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_gastos_documento` FOREIGN KEY (`documento_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_gastos_creado_por` FOREIGN KEY (`creado_por`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 );
 
@@ -434,15 +437,6 @@ CREATE TABLE IF NOT EXISTS `adjuntos` (
   CONSTRAINT `fk_adjuntos_subido_por` FOREIGN KEY (`subido_por`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 );
 
--- Claves foráneas para tablas que referencian adjuntos (después de que adjuntos existe)
-ALTER TABLE `estancias`
-ADD CONSTRAINT `fk_estancias_contrato_adjunto` FOREIGN KEY (`contrato_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL;
-
-ALTER TABLE `facturas_suministro`
-ADD CONSTRAINT `fk_facturas_documento` FOREIGN KEY (`documento_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL;
-
-ALTER TABLE `gastos`
-ADD CONSTRAINT `fk_gastos_documento` FOREIGN KEY (`documento_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL;
 
 -- --------------------------------------------------------
 -- 20. Contratos de alquiler
@@ -460,7 +454,7 @@ CREATE TABLE IF NOT EXISTS `contratos` (
   `documento_adjunto_id` INTEGER UNSIGNED NULL,
   `renovado_de_id` INTEGER UNSIGNED NULL,
   `fecha_creacion` DATETIME NOT NULL DEFAULT (datetime('now')),
-  `fecha_actualizacion` DATETIME NOT NULL DEFAULT (datetime('now')) ON UPDATE datetime('now'),
+  `fecha_actualizacion` DATETIME NOT NULL DEFAULT (datetime('now')),
   CONSTRAINT `fk_contratos_estancia` FOREIGN KEY (`estancia_id`) REFERENCES `estancias` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_contratos_documento` FOREIGN KEY (`documento_adjunto_id`) REFERENCES `adjuntos` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_contratos_renovado_de` FOREIGN KEY (`renovado_de_id`) REFERENCES `contratos` (`id`) ON DELETE SET NULL
@@ -481,8 +475,3 @@ CREATE TABLE IF NOT EXISTS `auditoria` (
   `direccion_ip` VARCHAR(45) NULL,
   CONSTRAINT `fk_auditoria_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 );
-
--- Claves foráneas finales (después de que cuotas_reparto y fianzas se definen)
-ALTER TABLE `aplicaciones_cobro`
-ADD CONSTRAINT `fk_aplicaciones_cuota_reparto` FOREIGN KEY (`cuota_reparto_id`) REFERENCES `cuotas_reparto` (`id`) ON DELETE RESTRICT,
-ADD CONSTRAINT `fk_aplicaciones_fianza` FOREIGN KEY (`fianza_id`) REFERENCES `fianzas` (`id`) ON DELETE RESTRICT;

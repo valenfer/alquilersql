@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista cobros/ver.php — Detalle de un cobro con sus aplicaciones.
  *
@@ -71,7 +73,7 @@ declare(strict_types=1);
                 foreach ($cobro['aplicaciones'] as $app): ?>
                     <tr>
                         <td><?= $app['anio'] ?> / <?= $app['mes'] ?></td>
-                        <td><?= Security::html($app['habitacion_numero'] ?? '—') ?></td>
+                        <td><?= Security::html((string) ($app['habitacion_numero'] ?? '—')) ?></td>
                         <td><?= $app['periodo_desde'] && $app['periodo_hasta'] ? date('d/m/Y', strtotime($app['periodo_desde'])) . ' — ' . date('d/m/Y', strtotime($app['periodo_hasta'])) : '—' ?></td>
                         <td><?= Security::html(number_format($app['importe'], 2, ',', '.')) . ' €' ?></td>
                     </tr>

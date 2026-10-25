@@ -128,7 +128,7 @@ class GastoController
         $pagos = [];
         if (!empty($_POST['pago_importe'])) {
             foreach ($_POST['pago_importe'] as $idx => $importe) {
-                if ((float) $importe > 0) {
+                if (Security::normalizarImporte((string) $importe) > 0) {
                     $pagos[] = [
                         'importe' => $importe,
                         'fecha_pago' => $_POST['pago_fecha'][$idx] ?? '',
@@ -265,7 +265,7 @@ class GastoController
         $usuario = \App\Support\Auth::usuario();
         $resultado = $this->service->registrarPago(
             (int) ($_POST['gasto_id'] ?? 0),
-            (float) ($_POST['importe'] ?? 0),
+            Security::normalizarImporte((string) ($_POST['importe'] ?? '')) ?? 0.0,
             $_POST['fecha_pago'] ?? '',
             $_POST['medio'] ?? '',
             $_POST['referencia'] ?? null,

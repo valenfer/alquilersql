@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista cobros/listar.php — Listado de cobros recibidos.
  *
@@ -15,10 +17,10 @@ declare(strict_types=1);
     <h2><?= Security::html($titulo) ?></h2>
 
     <?php if (!empty($flash['cobro_registrado'])): ?>
-        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['cobro_registrado']) ?></div>
+        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['cobro_registrado']['valor']) ?></div>
     <?php endif; ?>
     <?php if (!empty($flash['error_cobro'])): ?>
-        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_cobro']) ?></div>
+        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_cobro']['valor']) ?></div>
     <?php endif; ?>
 
     <div class="acciones-lista">

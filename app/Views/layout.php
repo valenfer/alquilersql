@@ -28,8 +28,8 @@ $usuario = isset($usuario) ? $usuario : null;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= Security::html($titulo) ?> — Alquiler</title>
-    <link rel="stylesheet" href="<?= Security::attr($config['url_base'] ?? '') ?>/assets/css/style.css">
+    <title><?= \App\Support\Security::html($titulo) ?> — Alquiler</title>
+    <link rel="stylesheet" href="<?= \App\Support\Security::attr($config['url_base'] ?? '') ?>/assets/css/style.css">
 </head>
 <body>
     <header class="cabecera">
@@ -37,7 +37,7 @@ $usuario = isset($usuario) ? $usuario : null;
             <h1 class="nombre-app">Alquiler</h1>
             <?php if ($usuario): ?>
                 <div class="usuario-sesion">
-                    <span>Usuario: <?= Security::html($usuario['nombre']) ?></span>
+                    <span>Usuario: <?= \App\Support\Security::html($usuario['nombre']) ?></span>
                     <a href="?r=logout" class="btn-salir">Cerrar sesión</a>
                 </div>
             <?php endif; ?>
@@ -46,8 +46,8 @@ $usuario = isset($usuario) ? $usuario : null;
 
     <main class="contenido">
         <?php foreach ($flash as $clave => $msg): ?>
-            <div class="alerta alerta-<?= Security::html($msg['tipo']) ?>" role="alert">
-                <?= Security::html($msg['valor']) ?>
+            <div class="alerta alerta-<?= \App\Support\Security::html($msg['tipo']) ?>" role="alert">
+                <?= \App\Support\Security::html($msg['valor']) ?>
             </div>
         <?php endforeach; ?>
 
@@ -61,9 +61,9 @@ $usuario = isset($usuario) ? $usuario : null;
     </footer>
 
     <?php if (!empty($csrf)): ?>
-        <input type="hidden" id="csrf_token" value="<?= Security::attr($csrf) ?>">
+        <input type="hidden" id="csrf_token" value="<?= \App\Support\Security::attr($csrf) ?>">
     <?php endif; ?>
 
-    <script src="<?= Security::attr($config['url_base'] ?? '') ?>/assets/js/app.js"></script>
+    <script src="<?= \App\Support\Security::attr($config['url_base'] ?? '') ?>/assets/js/app.js"></script>
 </body>
 </html>

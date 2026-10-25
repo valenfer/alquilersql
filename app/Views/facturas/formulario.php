@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista facturas/formulario.php — Formulario para crear o editar una factura.
  *
@@ -15,13 +17,13 @@ declare(strict_types=1);
     <h2><?= Security::html($titulo) ?></h2>
 
     <?php if (!empty($flash['error_factura'])): ?>
-        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_factura']) ?></div>
+        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_factura']['valor']) ?></div>
     <?php endif; ?>
 
     <form action="?r=facturas/<?= $accion === 'crear' ? 'crear' : 'actualizar' ?>" method="post" novalidate>
         <input type="hidden" name="csrf_token" value="<?= Security::attr($csrf) ?>">
         <?php if ($accion === 'actualizar'): ?>
-            <input type="hidden" name="id" value="<?= Security::attr($id) ?>">
+            <input type="hidden" name="id" value="<?= Security::attr((string) $id) ?>">
         <?php endif; ?>
 
         <div class="campo">
@@ -70,7 +72,7 @@ declare(strict_types=1);
         <div class="campo">
             <label for="importe_total">Importe total (€)</label>
             <input type="text" id="importe_total" name="importe_total"
-                   value="<?= Security::html($factura['importe_total'] !== null ? number_format($factura['importe_total'], 2, ',', '.') : '') ?>"
+                   value="<?= Security::html(($factura['importe_total'] ?? null) !== null ? number_format((float) $factura['importe_total'], 2, ',', '.') : '') ?>"
                    placeholder="Ejemplo: 120,00">
             <p class="ayuda-campo">Importe total de la factura. Máximo dos decimales.</p>
         </div>

@@ -18,9 +18,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Support\Auth;
 use App\Support\Session;
-use App\Support\Security;
 
 class InstallController
 {
@@ -109,7 +107,7 @@ class InstallController
             $errores[] = 'La contraseña y su confirmación no coinciden.';
         }
 
-        // Verificar que el usuario no exista (doble comprobación por concurrencia)
+        // Verificar que el usuario no exista
         $pdo = \App\Support\Database::obtenerConexion();
         $stmt = $pdo->prepare('SELECT id FROM usuarios WHERE usuario = :usuario LIMIT 1');
         $stmt->execute([':usuario' => $usuario]);
@@ -126,8 +124,8 @@ class InstallController
         // Crear el usuario
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare(
-            'INSERT INTO usuarios (usuario, password_hash, nombre, email, activo, fecha_creacion)
-             VALUES (:usuario, :hash, :nombre, :email, 1, datetime('datetime('now')'))'
+            "INSERT INTO usuarios (usuario, password_hash, nombre, email, activo, fecha_creacion)
+             VALUES (:usuario, :hash, :nombre, :email, 1, datetime('now'))"
         );
 
         if ($stmt->execute([

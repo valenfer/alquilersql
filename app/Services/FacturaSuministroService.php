@@ -23,6 +23,7 @@ namespace App\Services;
 
 use App\Repositories\FacturaSuministroRepository;
 use App\Support\Database;
+use App\Support\Security;
 
 class FacturaSuministroService
 {
@@ -88,7 +89,7 @@ class FacturaSuministroService
         $fechaEmision = $datos['fecha_emision'] ?? null;
         $periodoDesde = $datos['periodo_desde'] ?? null;
         $periodoHasta = $datos['periodo_hasta'] ?? null;
-        $importeTotal = $datos['importe_total'] ?? null;
+        $importeTotal = Security::normalizarImporte((string) ($datos['importe_total'] ?? ''));
         $estado = $esBorrador ? 'borrador' : ($datos['estado'] ?? 'borrador');
         $observaciones = trim($datos['observaciones'] ?? '');
 
@@ -181,7 +182,7 @@ class FacturaSuministroService
         $fechaEmision = $datos['fecha_emision'] ?? null;
         $periodoDesde = $datos['periodo_desde'] ?? null;
         $periodoHasta = $datos['periodo_hasta'] ?? null;
-        $importeTotal = $datos['importe_total'] ?? null;
+        $importeTotal = Security::normalizarImporte((string) ($datos['importe_total'] ?? ''));
         $estado = $datos['estado'] ?? 'borrador';
 
         // Validaciones básicas
@@ -237,7 +238,7 @@ class FacturaSuministroService
         // Nota: no pasamos $usuarioId al repo porque el esquema no tiene columna de auditoría de actualización
         // en facturas_suministro (solo creado_por). La auditoría se maneja en la tabla auditoria.
 
-        $resultado = $this->repo->actualizar($id, array_merge($datos, ['id' => $id]));
+        $resultado = $this->repo->actualizar($id, array_merge($datos, ['importe_total' => $importeTotal ?? 0.00]));
         return ['exito' => $resultado, 'errores' => $resultado ? [] : ['No se pudo actualizar la factura.']];
     }
 
@@ -271,9 +272,9 @@ class FacturaSuministroService
             'estado' => 'anulada',
             'observaciones' => ($factura['observaciones'] ?? '') . ' | ANULADA: ' . $motivo,
             'motivo_solapamiento' => '',
-        ], 0); // usuarioId no usado en actualizar por limitación del esquema
+        ]);
 
-        if ($resultado['exito']) {
+        if ($resultado) {
             return ['exito' => true, 'error' => null];
         }
 

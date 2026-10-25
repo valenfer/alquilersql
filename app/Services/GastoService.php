@@ -22,6 +22,7 @@ use App\Repositories\GastoRepository;
 use App\Repositories\PagoGastoRepository;
 use App\Repositories\CategoriaGastoRepository;
 use App\Support\Database;
+use App\Support\Security;
 
 class GastoService
 {
@@ -88,7 +89,7 @@ class GastoService
 
         $categoriaId = (int) ($datos['categoria_id'] ?? 0);
         $descripcion = trim($datos['descripcion'] ?? '');
-        $importe = (float) ($datos['importe'] ?? 0);
+        $importe = Security::normalizarImporte((string) ($datos['importe'] ?? ''));
         $fechaGasto = $datos['fecha_gasto'] ?? null;
         $proveedor = trim($datos['proveedor'] ?? '');
         $numeroFactura = trim($datos['numero_factura'] ?? '');
@@ -103,7 +104,7 @@ class GastoService
         if ($descripcion === '') {
             $errores[] = 'La descripción es obligatoria.';
         }
-        if ($importe <= 0) {
+        if ($importe === null || $importe <= 0) {
             $errores[] = 'El importe debe ser mayor a 0.';
         }
         if ($fechaGasto === null) {
@@ -112,6 +113,19 @@ class GastoService
 
         // Advertir si parece duplicar una factura de suministro (comunidad e IBI no generan cuotas)
         // Esta advertencia es informativa; no bloquea la creación.
+        // Los pagos indicados en el alta deben ser válidos y no exceder el gasto.
+        $totalPrevisto = 0.0;
+        foreach (($datos['pagos'] ?? []) as $pago) {
+            $importePago = Security::normalizarImporte((string) ($pago['importe'] ?? ''));
+            if ($importePago === null || $importePago <= 0 || empty($pago['fecha_pago'])) {
+                $errores[] = 'Cada pago debe tener un importe válido y una fecha.';
+                continue;
+            }
+            $totalPrevisto = round($totalPrevisto + $importePago, 2);
+        }
+        if ($importe !== null && $totalPrevisto > $importe) {
+            $errores[] = 'Los pagos no pueden superar el importe del gasto.';
+        }
 
         if (!empty($errores)) {
             return ['exito' => false, 'id' => null, 'errores' => $errores];
@@ -128,7 +142,7 @@ class GastoService
                 'fecha_gasto' => $fechaGasto,
                 'proveedor' => $proveedor,
                 'numero_factura' => $numeroFactura,
-                'relacion_habitacion' => $relacionHabitacion,
+                'relacion_habitacion' => $relacionHabitacion > 0 ? $relacionHabitacion : null,
                 'es_general' => $esGeneral,
                 'observaciones' => $observaciones,
                 'creado_por' => $usuarioId,
@@ -138,7 +152,7 @@ class GastoService
             $pagos = $datos['pagos'] ?? [];
             $totalPagos = 0.0;
             foreach ($pagos as $pago) {
-                $importePago = (float) ($pago['importe'] ?? 0);
+                $importePago = Security::normalizarImporte((string) ($pago['importe'] ?? ''));
                 $fechaPago = $pago['fecha_pago'] ?? null;
                 $medio = $pago['medio'] ?? '';
 

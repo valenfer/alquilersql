@@ -107,7 +107,7 @@ class CobroService
         $inquilinoId = (int) ($datos['inquilino_id'] ?? 0);
         $fechaCobro = $datos['fecha_cobro'] ?? null;
         $medio = $datos['medio'] ?? '';
-        $importeTotal = $datos['importe_total'] ?? null;
+        $importeTotal = Security::normalizarImporte((string) ($datos['importe_total'] ?? ''));
         $referencia = trim($datos['referencia'] ?? '');
         $observaciones = trim($datos['observaciones'] ?? '');
         $tokenIdempotencia = $datos['token_idempotencia'] ?? Security::tokenIdempotencia();

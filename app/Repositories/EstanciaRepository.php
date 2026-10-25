@@ -212,7 +212,7 @@ class EstanciaRepository
              VALUES
              (:inquilino_id, :habitacion_id, :fecha_entrada, :fecha_salida_prevista,
               :fecha_salida_efectiva, :renta_mensual, :dia_vencimiento, :fianza_pactada,
-              :referencia_contrato, :contrato_adjunto_id, :estado, datetime('datetime('now')'), datetime('datetime('now')'))'
+              :referencia_contrato, :contrato_adjunto_id, :estado, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
         );
         $stmt->execute([
             ':inquilino_id' => $datos['inquilino_id'],
@@ -267,7 +267,7 @@ class EstanciaRepository
             return false;
         }
 
-        $campos[] = 'fecha_actualizacion = datetime(\'datetime('now')\')';
+        $campos[] = 'fecha_actualizacion = CURRENT_TIMESTAMP';
         $sql = 'UPDATE estancias SET ' . implode(', ', $campos) . ' WHERE id = :id';
 
         $stmt = $this->pdo->prepare($sql);
@@ -287,7 +287,7 @@ class EstanciaRepository
             "UPDATE estancias
              SET fecha_salida_efectiva = :fecha_salida_efectiva,
                  estado = 'finalizada',
-fecha_actualizacion = datetime('datetime('now')')
+fecha_actualizacion = CURRENT_TIMESTAMP
              WHERE id = :id"
         );
         return $stmt->execute([

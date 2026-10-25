@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista dashboard/index.php — Pantalla de inicio del dashboard.
  *

@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista inquilinos/listar.php — Listado de inquilinos.
  *
@@ -16,16 +18,16 @@ declare(strict_types=1);
     <h2><?= Security::html($titulo) ?></h2>
 
     <?php if (!empty($flash['inquilino_creado'])): ?>
-        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['inquilino_creado']) ?></div>
+        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['inquilino_creado']['valor']) ?></div>
     <?php endif; ?>
     <?php if (!empty($flash['inquilino_actualizado'])): ?>
-        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['inquilino_actualizado']) ?></div>
+        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['inquilino_actualizado']['valor']) ?></div>
     <?php endif; ?>
     <?php if (!empty($flash['inquilino_archivado'])): ?>
-        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['inquilino_archivado']) ?></div>
+        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['inquilino_archivado']['valor']) ?></div>
     <?php endif; ?>
     <?php if (!empty($flash['error_inquilino'])): ?>
-        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_inquilino']) ?></div>
+        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_inquilino']['valor']) ?></div>
     <?php endif; ?>
 
     <div class="acciones-lista">

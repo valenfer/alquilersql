@@ -186,22 +186,10 @@ class FacturaSuministroRepository
              VALUES
              (:tipo, :proveedor, :numero_factura, :fecha_emision, :periodo_desde, :periodo_hasta,
               :importe_total, :fecha_vencimiento, :estado, :documento_adjunto_id, :observaciones,
-              datetime('datetime('now')'), :creado_por, :fecha_confirmacion)'
+              CURRENT_TIMESTAMP, :creado_por,
+              CASE WHEN CAST(:confirmar AS INTEGER) = 1 THEN CURRENT_TIMESTAMP ELSE NULL END)'
         );
-        $fechaConfirmacion = $datos['estado'] === 'confirmada' ? 'datetime('now')()' : 'NULL';
-        // Nota: se usa un truco para evitar inyección; mejor hacer dos prepares si es necesario.
-        // Aquí usamos un enfoque simple:
-        $stmt2 = $this->pdo->prepare(
-            'INSERT INTO facturas_suministro
-             (tipo, proveedor, numero_factura, fecha_emision, periodo_desde, periodo_hasta,
-              importe_total, fecha_vencimiento, estado, documento_adjunto_id, observaciones,
-              fecha_creacion, creado_por, fecha_confirmacion)
-             VALUES
-             (:tipo, :proveedor, :numero_factura, :fecha_emision, :periodo_desde, :periodo_hasta,
-              :importe_total, :fecha_vencimiento, :estado, :documento_adjunto_id, :observaciones,
-              datetime('now')(), :creado_por, ' . ($datos['estado'] === 'confirmada' ? 'datetime('now')()' : 'NULL') . ')'
-        );
-        $stmt2->execute([
+        $stmt->execute([
             ':tipo' => $datos['tipo'],
             ':proveedor' => $datos['proveedor'],
             ':numero_factura' => $datos['numero_factura'],
@@ -209,11 +197,12 @@ class FacturaSuministroRepository
             ':periodo_desde' => $datos['periodo_desde'],
             ':periodo_hasta' => $datos['periodo_hasta'],
             ':importe_total' => $datos['importe_total'],
-            ':fecha_vencimiento' => $datos['fecha_vencimiento'] ?? null,
+            ':fecha_vencimiento' => ($datos['fecha_vencimiento'] ?? '') ?: null,
             ':estado' => $datos['estado'],
             ':documento_adjunto_id' => $datos['documento_adjunto_id'] ?? null,
             ':observaciones' => $datos['observaciones'] ?? null,
             ':creado_por' => $datos['creado_por'] ?? null,
+            ':confirmar' => $datos['estado'] === 'confirmada' ? 1 : 0,
         ]);
         return (int) $this->pdo->lastInsertId();
     }
@@ -227,8 +216,6 @@ class FacturaSuministroRepository
      */
     public function actualizar(int $id, array $datos): bool
     {
-        $fechaConfirmacion = $datos['estado'] === 'confirmada' ? 'datetime('now')()' : (isset($datos['fecha_confirmacion']) ? $datos['fecha_confirmacion'] : 'NULL');
-
         $stmt = $this->pdo->prepare(
             'UPDATE facturas_suministro
              SET tipo = :tipo, proveedor = :proveedor, numero_factura = :numero_factura,
@@ -236,10 +223,26 @@ class FacturaSuministroRepository
                  periodo_hasta = :periodo_hasta, importe_total = :importe_total,
                  fecha_vencimiento = :fecha_vencimiento, estado = :estado,
                  documento_adjunto_id = :documento_adjunto_id, observaciones = :observaciones,
-                 fecha_confirmacion = ' . $fechaConfirmacion . '
+                 fecha_confirmacion = CASE WHEN CAST(:confirmar AS INTEGER) = 1
+                     THEN COALESCE(fecha_confirmacion, CURRENT_TIMESTAMP)
+                     ELSE fecha_confirmacion END
              WHERE id = :id'
         );
-        return $stmt->execute(array_merge($datos, [':id' => $id]));
+        return $stmt->execute([
+            ':id' => $id,
+            ':tipo' => $datos['tipo'],
+            ':proveedor' => $datos['proveedor'],
+            ':numero_factura' => $datos['numero_factura'],
+            ':fecha_emision' => $datos['fecha_emision'],
+            ':periodo_desde' => $datos['periodo_desde'],
+            ':periodo_hasta' => $datos['periodo_hasta'],
+            ':importe_total' => $datos['importe_total'],
+            ':fecha_vencimiento' => ($datos['fecha_vencimiento'] ?? '') ?: null,
+            ':estado' => $datos['estado'],
+            ':documento_adjunto_id' => $datos['documento_adjunto_id'] ?? null,
+            ':observaciones' => $datos['observaciones'] ?? null,
+            ':confirmar' => $datos['estado'] === 'confirmada' ? 1 : 0,
+        ]);
     }
 
     /**

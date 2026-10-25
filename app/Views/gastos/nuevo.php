@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista gastos/nuevo.php — Formulario para registrar un gasto.
  *
@@ -15,7 +17,7 @@ declare(strict_types=1);
     <h2><?= Security::html($titulo) ?></h2>
 
     <?php if (!empty($flash['error_gasto'])): ?>
-        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_gasto']) ?></div>
+        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_gasto']['valor']) ?></div>
     <?php endif; ?>
 
     <div class="alerta alerta-info" role="alert">

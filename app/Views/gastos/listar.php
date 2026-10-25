@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista gastos/listar.php — Listado de gastos del propietario.
  *
@@ -15,13 +17,13 @@ declare(strict_types=1);
     <h2><?= Security::html($titulo) ?></h2>
 
     <?php if (!empty($flash['gasto_creado'])): ?>
-        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['gasto_creado']) ?></div>
+        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['gasto_creado']['valor']) ?></div>
     <?php endif; ?>
     <?php if (!empty($flash['gasto_pagado'])): ?>
-        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['gasto_pagado']) ?></div>
+        <div class="alerta alerta-exito" role="alert"><?= Security::html($flash['gasto_pagado']['valor']) ?></div>
     <?php endif; ?>
     <?php if (!empty($flash['error_gasto'])): ?>
-        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_gasto']) ?></div>
+        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_gasto']['valor']) ?></div>
     <?php endif; ?>
 
     <div class="acciones-lista">

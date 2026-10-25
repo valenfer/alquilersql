@@ -93,7 +93,7 @@ class ContratoRepository
              ORDER BY c.fecha_inicio DESC
              LIMIT 1"
         );
-        $stmt->execute([':estancia_id' => $estanciaId]);
+        $stmt->execute([':estancia_id' => $estanciaId, ':hoy' => date('Y-m-d')]);
         $fila = $stmt->fetch();
         return $fila ? $fila : null;
     }
@@ -111,7 +111,7 @@ class ContratoRepository
         $stmt = $this->pdo->prepare(
             "SELECT c.*, h.numero AS habitacion_numero, h.nombre AS habitacion_nombre,
                     i.id AS inquilino_id, i.nombre AS inquilino_nombre, i.apellidos AS inquilino_apellidos,
-(i.numero_documento AS inquilino_documento,
+                    i.numero_documento AS inquilino_documento,
                      (julianday(c.fecha_fin) - julianday(:hoy)) AS dias_restantes
              FROM contratos c
              INNER JOIN estancias e ON c.estancia_id = e.id
@@ -120,10 +120,10 @@ class ContratoRepository
              WHERE c.estado = 'vigente'
                AND c.fecha_fin IS NOT NULL
                AND c.fecha_fin <= :fecha_limite
-               AND c.fecha_fin >= :hoy()
+               AND c.fecha_fin >= :hoy
              ORDER BY c.fecha_fin ASC"
         );
-        $stmt->execute([':fecha_limite' => $fechaLimite]);
+        $stmt->execute([':fecha_limite' => $fechaLimite, ':hoy' => date('Y-m-d')]);
         return $stmt->fetchAll();
     }
 
@@ -134,7 +134,7 @@ class ContratoRepository
      */
     public function obtenerVencidos(): array
     {
-        $stmt = $this->pdo->query(
+        $stmt = $this->pdo->prepare(
             "SELECT c.*, h.numero AS habitacion_numero, h.nombre AS habitacion_nombre,
                     i.id AS inquilino_id, i.nombre AS inquilino_nombre, i.apellidos AS inquilino_apellidos,
 i.numero_documento AS inquilino_documento,
@@ -148,6 +148,7 @@ i.numero_documento AS inquilino_documento,
                AND c.fecha_fin < :hoy
              ORDER BY c.fecha_fin ASC"
         );
+        $stmt->execute([':hoy' => date('Y-m-d')]);
         return $stmt->fetchAll();
     }
 
@@ -167,7 +168,7 @@ i.numero_documento AS inquilino_documento,
              VALUES
              (:estancia_id, :fecha_inicio, :fecha_fin, :renta_mensual, :condiciones,
               :clausulas_adicionales, :estado, :documento_adjunto_id, :renovado_de_id,
-              datetime('now')(), datetime('now')())'
+                            CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
         );
         $stmt->execute([
             ':estancia_id' => $datos['estancia_id'],
@@ -217,7 +218,7 @@ i.numero_documento AS inquilino_documento,
             return false;
         }
 
-        $campos[] = 'fecha_actualizacion = datetime('now')()';
+        $campos[] = 'fecha_actualizacion = CURRENT_TIMESTAMP';
         $sql = 'UPDATE contratos SET ' . implode(', ', $campos) . ' WHERE id = :id';
 
         $stmt = $this->pdo->prepare($sql);
@@ -233,7 +234,7 @@ i.numero_documento AS inquilino_documento,
     public function marcarComoRenovado(int $id): bool
     {
         $stmt = $this->pdo->prepare(
-            "UPDATE contratos SET estado = 'renovado', fecha_actualizacion = datetime('now')() WHERE id = :id"
+            "UPDATE contratos SET estado = 'renovado', fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = :id"
         );
         return $stmt->execute([':id' => $id]);
     }
@@ -261,7 +262,7 @@ i.numero_documento AS inquilino_documento,
     public function marcarVencidosAutomaticamente(): int
     {
         $stmt = $this->pdo->prepare(
-            "UPDATE contratos SET estado = 'vencido', fecha_actualizacion = datetime('now')
+            "UPDATE contratos SET estado = 'vencido', fecha_actualizacion = CURRENT_TIMESTAMP
              WHERE estado = 'vigente'
                AND fecha_fin IS NOT NULL
                AND fecha_fin < :hoy"

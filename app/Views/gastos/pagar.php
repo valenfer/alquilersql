@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Support\Security;
+
 /**
  * Vista gastos/pagar.php — Formulario para pagar un gasto.
  */
@@ -10,7 +12,7 @@ declare(strict_types=1);
     <h2><?= Security::html($titulo) ?></h2>
 
     <?php if (!empty($flash['error_gasto'])): ?>
-        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_gasto']) ?></div>
+        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_gasto']['valor']) ?></div>
     <?php endif; ?>
 
     <div class="resumen-gasto">
@@ -37,7 +39,7 @@ declare(strict_types=1);
 
     <form action="?r=gastos/procesar-pagar" method="post" novalidate>
         <input type="hidden" name="csrf_token" value="<?= Security::attr($csrf) ?>">
-        <input type="hidden" name="gasto_id" value="<?= Security::attr($gasto['id']) ?>">
+        <input type="hidden" name="gasto_id" value="<?= Security::attr((string) $gasto['id']) ?>">
 
         <div class="campo">
             <label for="importe">Importe a pagar (€)</label>

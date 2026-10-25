@@ -53,26 +53,17 @@ class Security
             return null;
         }
 
-        // Eliminar puntos de miles
-        $valor = str_replace('.', '', $valor);
-
-        // Reemplazar coma decimal por punto
-        $valor = str_replace(',', '.', $valor);
-
-        // Validar que sea numérico y tenga máximo 2 decimales
-        if (!is_numeric($valor)) {
-            return null;
+        // Formato español con separador de miles y coma decimal.
+        if (preg_match('/^-?(?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d{1,2})?$/', $valor)) {
+            return round((float) str_replace(',', '.', str_replace('.', '', $valor)), 2);
         }
 
-        $numero = (float) $valor;
-
-        // Comprobar máximo 2 decimales
-        $decimales = strlen(substr(strrchr($valor, '.'), 1));
-        if ($decimales > 2) {
-            return null;
+        // También se admite el punto decimal sin separadores de miles.
+        if (preg_match('/^-?\d+(?:\.\d{1,2})?$/', $valor)) {
+            return round((float) $valor, 2);
         }
 
-        return round($numero, 2);
+        return null;
     }
 
     /**

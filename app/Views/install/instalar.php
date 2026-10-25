@@ -20,11 +20,11 @@ declare(strict_types=1);
     </p>
 
     <?php if (!empty($flash['error_instalacion'])): ?>
-        <div class="alerta alerta-error" role="alert"><?= Security::html($flash['error_instalacion']) ?></div>
+        <div class="alerta alerta-error" role="alert"><?= \App\Support\Security::html($flash['error_instalacion']['valor']) ?></div>
     <?php endif; ?>
 
     <form action="?r=doInstall" method="post" novalidate>
-        <input type="hidden" name="csrf_token" value="<?= Security::attr($csrf) ?>">
+        <input type="hidden" name="csrf_token" value="<?= \App\Support\Security::attr($csrf) ?>">
 
         <div class="campo">
             <label for="usuario">Nombre de usuario</label>

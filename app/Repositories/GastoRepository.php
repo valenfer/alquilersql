@@ -35,11 +35,15 @@ class GastoRepository
     {
         $sql = '
             SELECT g.*, c.nombre AS categoria_nombre, h.numero AS habitacion_numero,
-                   u.nombre AS creado_por_nombre
+                   u.nombre AS creado_por_nombre,
+                   COALESCE(pg.total, 0) AS total_pagado,
+                   ROUND(g.importe - COALESCE(pg.total, 0), 2) AS saldo_pendiente_pago
              FROM gastos g
              INNER JOIN categorias_gasto c ON g.categoria_id = c.id
              LEFT JOIN habitaciones h ON g.relacion_habitacion = h.id
              LEFT JOIN usuarios u ON g.creado_por = u.id
+             LEFT JOIN (SELECT gasto_id, SUM(importe) AS total FROM pagos_gasto GROUP BY gasto_id) pg
+               ON pg.gasto_id = g.id
              WHERE 1=1';
         $params = [];
 
@@ -102,7 +106,7 @@ class GastoRepository
              VALUES
              (:categoria_id, :descripcion, :importe, :fecha_gasto, :proveedor, :numero_factura,
               :relacion_habitacion, :es_general, :observaciones, :documento_adjunto_id,
-              datetime('datetime('now')'), :creado_por)'
+              CURRENT_TIMESTAMP, :creado_por)'
         );
         $stmt->execute([
             ':categoria_id' => $datos['categoria_id'],
